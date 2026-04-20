@@ -3,10 +3,24 @@ interface Props {
   title: string;
   description?: string;
   wide?: boolean;
+  ogImage?: string;
+  ogType?: string;
+  noindex?: boolean;
 }
 
-const { title, description = 'Tobias Oberrauch — Software Engineer, Hochbegabung & Prototypen', wide = false } = Astro.props;
+const {
+  title,
+  description = 'Tobias Oberrauch — KI-Beauftragter bei audius, Software Engineer und Elterngruppenleiter beim LVH Baden-Württemberg.',
+  wide = false,
+  ogImage = '/images/tobias-audius.webp',
+  ogType = 'website',
+  noindex = false,
+} = Astro.props;
+
 const currentPath = Astro.url.pathname;
+const canonicalURL = new URL(currentPath, Astro.site);
+const ogImageURL = new URL(ogImage, Astro.site);
+const fullTitle = title === 'Home' ? 'Tobias Oberrauch — KI-Beauftragter, Software Engineer & Hochbegabung' : `${title} · Tobias Oberrauch`;
 
 const nav = [
   { href: '/', label: 'Home' },
@@ -14,6 +28,54 @@ const nav = [
   { href: '/lab/', label: 'Lab' },
   { href: '/ueber-mich/', label: 'Über mich' },
 ];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': 'https://tobiasoberrauch.de/#website',
+      url: 'https://tobiasoberrauch.de/',
+      name: 'Tobias Oberrauch',
+      description: 'KI-Beauftragter bei audius, Software Engineer und Elterngruppenleiter beim LVH Baden-Württemberg.',
+      inLanguage: 'de-DE',
+    },
+    {
+      '@type': 'Person',
+      '@id': 'https://tobiasoberrauch.de/#person',
+      name: 'Tobias Oberrauch',
+      url: 'https://tobiasoberrauch.de/',
+      image: 'https://tobiasoberrauch.de/images/tobias-audius.webp',
+      jobTitle: 'KI-Beauftragter',
+      worksFor: {
+        '@type': 'Organization',
+        name: 'audius',
+        url: 'https://www.audius.de',
+      },
+      sameAs: [
+        'https://github.com/tobiasoberrauch',
+        'https://de.linkedin.com/in/tobiasoberrauch',
+      ],
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Holzmaden',
+        addressRegion: 'Baden-Württemberg',
+        addressCountry: 'DE',
+      },
+      knowsAbout: ['Künstliche Intelligenz', 'RAG', 'LLM', 'Hochbegabung', 'Software Engineering'],
+    },
+    {
+      '@type': 'WebPage',
+      '@id': canonicalURL.href,
+      url: canonicalURL.href,
+      name: fullTitle,
+      description: description,
+      isPartOf: { '@id': 'https://tobiasoberrauch.de/#website' },
+      about: { '@id': 'https://tobiasoberrauch.de/#person' },
+      inLanguage: 'de-DE',
+    },
+  ],
+};
 ---
 
 <!doctype html>
@@ -21,10 +83,45 @@ const nav = [
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{fullTitle}</title>
   <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL.href} />
+  {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+  <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" href="/images/tobias-github.jpg" />
+
+  <!-- Theme -->
   <meta name="theme-color" content="#FAF7F2" />
-  <title>{title} · Tobias Oberrauch</title>
+  <meta name="color-scheme" content="light" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content={ogType} />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalURL.href} />
+  <meta property="og:image" content={ogImageURL.href} />
+  <meta property="og:image:alt" content="Tobias Oberrauch" />
+  <meta property="og:locale" content="de_DE" />
+  <meta property="og:site_name" content="Tobias Oberrauch" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={fullTitle} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImageURL.href} />
+  <meta name="twitter:site" content="@tobiasoberrauch" />
+  <meta name="twitter:creator" content="@tobiasoberrauch" />
+
+  <!-- Author -->
+  <meta name="author" content="Tobias Oberrauch" />
+  <link rel="me" href="https://github.com/tobiasoberrauch" />
+  <link rel="me" href="https://de.linkedin.com/in/tobiasoberrauch" />
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 </head>
 <body>
   <!-- Dot grid background -->
