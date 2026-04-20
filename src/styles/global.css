@@ -18,7 +18,9 @@
   --font-body: 'Outfit', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --max-width: 760px;
-  --max-width-wide: 1080px;
+  --max-width-wide: 1200px;
+  --max-width-full: 1440px;
+  --padding-x: clamp(1.25rem, 4vw, 3rem);
   --radius: 16px;
   --radius-sm: 10px;
   --shadow-sm: 0 1px 3px rgba(28, 25, 23, 0.04);

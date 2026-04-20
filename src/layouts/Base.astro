@@ -120,7 +120,7 @@ const nav = [
     position: sticky;
     top: 0;
     z-index: 100;
-    padding: 0 1.5rem;
+    padding: 0;
     background: rgba(250, 247, 242, 0.85);
     backdrop-filter: blur(16px) saturate(1.6);
     -webkit-backdrop-filter: blur(16px) saturate(1.6);
@@ -129,12 +129,13 @@ const nav = [
   }
 
   .header-inner {
-    max-width: var(--max-width-wide);
+    max-width: var(--max-width-full);
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
     height: 64px;
+    padding: 0 var(--padding-x);
   }
 
   .logo {
@@ -213,14 +214,12 @@ const nav = [
   .nav-toggle.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
 
   main {
-    max-width: var(--max-width);
+    width: 100%;
+    max-width: var(--max-width-full);
     margin: 0 auto;
-    padding: 4rem 1.5rem 6rem;
+    padding: 0 var(--padding-x) 4rem;
     min-height: 65vh;
     position: relative;
-  }
-  main.wide {
-    max-width: var(--max-width-wide);
   }
 
   .site-footer {
@@ -230,8 +229,9 @@ const nav = [
   }
 
   .footer-inner {
-    max-width: var(--max-width-wide);
+    max-width: var(--max-width-full);
     margin: 0 auto;
+    padding: 0 var(--padding-x);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -320,6 +320,6 @@ const nav = [
 
     .footer-inner { flex-direction: column; gap: 1rem; text-align: center; }
 
-    main { padding: 2.5rem 1.25rem 4rem; }
+    main { padding: 0 var(--padding-x) 3rem; }
   }
 </style>
