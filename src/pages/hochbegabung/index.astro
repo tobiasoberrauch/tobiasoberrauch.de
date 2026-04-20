@@ -5,46 +5,81 @@ const mdxFiles = import.meta.glob('../../content/hochbegabung/*.mdx', { eager: t
 const articles = Object.entries(mdxFiles).map(([path, mod]: [string, any]) => ({
   title: mod.frontmatter?.title || path.split('/').pop()?.replace('.mdx', ''),
   date: mod.frontmatter?.date,
+  description: mod.frontmatter?.description || '',
   slug: path.split('/').pop()?.replace('.mdx', ''),
 }));
 ---
 
 <Base title="Hochbegabung" description="Recherchen, Artikel und Ressourcen rund um Hochbegabung">
-  <h1>Hochbegabung</h1>
-  <p class="intro">
-    Informationen, Recherchen und persoenliche Erfahrungen zum Thema Hochbegabung
-    bei Kindern und Erwachsenen. Als Elterngruppenleiter beim
-    <a href="https://lvh-bw.de" target="_blank">LVH Baden-Wuerttemberg</a>
-    sammle ich hier Wissen fuer Familien.
-  </p>
+  <section class="page-header reveal">
+    <div class="page-badge reveal reveal-delay-1">Wissen & Erfahrung</div>
+    <h1 class="reveal reveal-delay-2">Hochbegabung</h1>
+    <p class="page-intro reveal reveal-delay-3">
+      Informationen, Recherchen und persönliche Erfahrungen zum Thema Hochbegabung
+      bei Kindern und Erwachsenen. Als Elterngruppenleiter beim
+      <a href="https://lvh-bw.de" target="_blank" rel="noopener">LVH Baden-Württemberg</a>
+      sammle ich hier Wissen für Familien.
+    </p>
+  </section>
 
   <section class="topics">
-    <div class="topic">
+    <div class="topic reveal reveal-delay-2">
+      <div class="topic-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </div>
       <h2>Erkennung & Testung</h2>
       <p>Wie erkennt man Hochbegabung? Welche Tests gibt es? Ab welchem Alter ist eine Testung sinnvoll?</p>
     </div>
-    <div class="topic">
-      <h2>Schule & Foerderung</h2>
-      <p>Schulwahl, Ueberspringen, Enrichment, Akzeleration — Wege fuer hochbegabte Kinder im Bildungssystem.</p>
+    <div class="topic reveal reveal-delay-3">
+      <div class="topic-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3H22M6 3V16C6 16 6.5 21 12 21C17.5 21 18 16 18 16V3"/>
+          <path d="M9 7H15M9 11H15"/>
+        </svg>
+      </div>
+      <h2>Schule & Förderung</h2>
+      <p>Schulwahl, Überspringen, Enrichment, Akzeleration — Wege für hochbegabte Kinder im Bildungssystem.</p>
     </div>
-    <div class="topic">
+    <div class="topic reveal reveal-delay-4">
+      <div class="topic-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/>
+        </svg>
+      </div>
       <h2>Sozial-Emotionales</h2>
       <p>Asynchrone Entwicklung, Perfektionismus, Unterforderung und der Umgang damit.</p>
     </div>
-    <div class="topic">
+    <div class="topic reveal reveal-delay-5">
+      <div class="topic-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+          <path d="M6.5 2H20V22H6.5A2.5 2.5 0 014 19.5V4.5A2.5 2.5 0 016.5 2Z"/>
+        </svg>
+      </div>
       <h2>Ressourcen</h2>
-      <p>Buecher, Anlaufstellen, Beratung und Netzwerke in Baden-Wuerttemberg.</p>
+      <p>Bücher, Anlaufstellen, Beratung und Netzwerke in Baden-Württemberg.</p>
     </div>
   </section>
 
   {articles.length > 0 && (
-    <section class="articles">
-      <h2>Artikel</h2>
-      <ul>
-        {articles.map((a) => (
-          <li>
-            <a href={`/hochbegabung/${a.slug}/`}>{a.title}</a>
-            {a.date && <span class="date">{a.date}</span>}
+    <section class="articles reveal reveal-delay-4">
+      <h2 class="section-title">
+        <span class="section-line"></span>
+        Artikel
+      </h2>
+      <ul class="article-list">
+        {articles.map((a, i) => (
+          <li class={`reveal reveal-delay-${Math.min(i + 3, 6)}`}>
+            <a href={`/hochbegabung/${a.slug}/`} class="article-card">
+              <div class="article-meta">
+                {a.date && <time>{new Date(a.date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}</time>}
+              </div>
+              <h3>{a.title}</h3>
+              {a.description && <p>{a.description}</p>}
+              <span class="article-link">Lesen →</span>
+            </a>
           </li>
         ))}
       </ul>
@@ -53,17 +88,147 @@ const articles = Object.entries(mdxFiles).map(([path, mod]: [string, any]) => ({
 </Base>
 
 <style>
-  .intro { color: var(--color-muted); font-size: 1.1rem; margin-bottom: 2.5rem; max-width: 600px; }
-  .topics { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
-  .topic {
-    border: 1px solid var(--color-border);
-    border-radius: 12px;
-    padding: 1.5rem;
+  .page-header {
+    margin-bottom: 3rem;
   }
-  .topic h2 { margin-top: 0; font-size: 1.2rem; }
-  .topic p { color: var(--color-muted); margin-bottom: 0; font-size: 0.95rem; }
-  .articles { margin-top: 3rem; }
-  .articles ul { list-style: none; padding: 0; }
-  .articles li { padding: 0.5rem 0; border-bottom: 1px solid var(--color-border); }
-  .date { color: var(--color-muted); font-size: 0.85rem; margin-left: 0.5rem; }
+
+  .page-badge {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-secondary);
+    background: var(--color-secondary-light);
+    padding: 0.3rem 0.9rem;
+    border-radius: 99px;
+    margin-bottom: 1.25rem;
+  }
+
+  .page-header h1 { margin-bottom: 1rem; }
+
+  .page-intro {
+    color: var(--color-muted);
+    font-size: 1.1rem;
+    max-width: 580px;
+    line-height: 1.7;
+  }
+
+  .topics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 4rem;
+  }
+
+  .topic {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    transition: all var(--transition);
+  }
+  .topic:hover {
+    border-color: var(--color-secondary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .topic-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    background: var(--color-secondary-light);
+    color: var(--color-secondary);
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    transition: all var(--transition);
+  }
+  .topic:hover .topic-icon {
+    background: var(--color-secondary);
+    color: white;
+  }
+
+  .topic h2 {
+    font-size: 1.15rem;
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+  }
+  .topic p {
+    color: var(--color-muted);
+    margin-bottom: 0;
+    font-size: 0.93rem;
+    line-height: 1.6;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+  }
+  .section-line {
+    display: block;
+    width: 32px;
+    height: 2px;
+    background: var(--color-accent);
+    border-radius: 2px;
+  }
+
+  .article-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .article-card {
+    display: block;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    transition: all var(--transition);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+  .article-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-md);
+    transform: translateX(4px);
+    color: var(--color-text);
+  }
+
+  .article-meta time {
+    font-size: 0.82rem;
+    color: var(--color-muted);
+    font-weight: 400;
+  }
+
+  .article-card h3 {
+    font-size: 1.15rem;
+    margin: 0.35rem 0 0.4rem;
+    font-weight: 600;
+  }
+
+  .article-card p {
+    color: var(--color-muted);
+    font-size: 0.93rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+  }
+
+  .article-link {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 640px) {
+    .topics { grid-template-columns: 1fr; }
+  }
 </style>

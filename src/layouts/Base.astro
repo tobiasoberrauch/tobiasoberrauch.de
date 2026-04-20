@@ -2,16 +2,17 @@
 interface Props {
   title: string;
   description?: string;
+  wide?: boolean;
 }
 
-const { title, description = 'Tobias Oberrauch - Software Engineer, Hochbegabung, Prototypen' } = Astro.props;
+const { title, description = 'Tobias Oberrauch — Software Engineer, Hochbegabung & Prototypen', wide = false } = Astro.props;
 const currentPath = Astro.url.pathname;
 
 const nav = [
   { href: '/', label: 'Home' },
   { href: '/hochbegabung/', label: 'Hochbegabung' },
   { href: '/lab/', label: 'Lab' },
-  { href: '/about/', label: 'About' },
+  { href: '/ueber-mich/', label: 'Über mich' },
 ];
 ---
 
@@ -22,31 +23,63 @@ const nav = [
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content={description} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <title>{title} | Tobias Oberrauch</title>
+  <meta name="theme-color" content="#FAF7F2" />
+  <title>{title} · Tobias Oberrauch</title>
 </head>
 <body>
+  <!-- Dot grid background -->
+  <div class="dot-grid" aria-hidden="true"></div>
+
   <header class="site-header">
     <div class="header-inner">
-      <a href="/" class="logo">tobiasoberrauch.de</a>
+      <a href="/" class="logo">
+        <span class="logo-mark">TO</span>
+        <span class="logo-text">tobias oberrauch</span>
+      </a>
       <nav>
         {nav.map(({ href, label }) => (
-          <a href={href} class:list={[{ active: currentPath === href || (href !== '/' && currentPath.startsWith(href)) }]}>
+          <a
+            href={href}
+            class:list={[{ active: currentPath === href || (href !== '/' && currentPath.startsWith(href)) }]}
+          >
             {label}
           </a>
         ))}
       </nav>
+      <button class="nav-toggle" aria-label="Menü öffnen" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </header>
 
-  <main>
+  <main class:list={[{ wide }]}>
     <slot />
   </main>
 
   <footer class="site-footer">
     <div class="footer-inner">
-      <p>&copy; {new Date().getFullYear()} Tobias Oberrauch</p>
+      <div class="footer-left">
+        <span class="footer-logo">TO</span>
+        <p>Tobias Oberrauch · Holzmaden</p>
+      </div>
+      <div class="footer-right">
+        <a href="mailto:tobias.oberrauch@gmx.de">E-Mail</a>
+        <a href="https://github.com/tobiasoberrauch" target="_blank" rel="noopener">GitHub</a>
+      </div>
     </div>
   </footer>
+
+  <script>
+    const toggle = document.querySelector('.nav-toggle');
+    const nav = document.querySelector('.site-header nav');
+    if (toggle && nav) {
+      toggle.addEventListener('click', () => {
+        const open = nav.classList.toggle('open');
+        toggle.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', String(open));
+      });
+    }
+  </script>
 </body>
 </html>
 
@@ -55,42 +88,195 @@ const nav = [
 </style>
 
 <style>
-  .site-header {
-    border-bottom: 1px solid var(--color-border);
-    padding: 1rem 1.5rem;
+  .dot-grid {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: radial-gradient(circle, #D6D3D1 0.8px, transparent 0.8px);
+    background-size: 32px 32px;
+    opacity: 0.35;
+    pointer-events: none;
   }
+
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 0 1.5rem;
+    background: rgba(250, 247, 242, 0.85);
+    backdrop-filter: blur(16px) saturate(1.6);
+    -webkit-backdrop-filter: blur(16px) saturate(1.6);
+    border-bottom: 1px solid var(--color-border);
+    animation: fadeIn 0.5s ease both;
+  }
+
   .header-inner {
+    max-width: var(--max-width-wide);
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--color-text);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .logo:hover { color: var(--color-text); }
+
+  .logo-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--color-accent);
+    color: white;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.85rem;
+    border-radius: 10px;
+    letter-spacing: 0.02em;
+  }
+
+  .logo-text {
+    font-size: 0.95rem;
+    letter-spacing: 0.01em;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  nav a {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    font-weight: 400;
+    padding: 0.45rem 0.85rem;
+    border-radius: 8px;
+    transition: all var(--transition);
+    text-decoration: none;
+  }
+  nav a:hover {
+    color: var(--color-text);
+    background: var(--color-bg-alt);
+  }
+  nav a.active {
+    color: var(--color-accent);
+    background: var(--color-accent-light);
+    font-weight: 500;
+  }
+
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+  }
+  .nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--color-text);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+  .nav-toggle.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; }
+  .nav-toggle.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+  main {
     max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 4rem 1.5rem 6rem;
+    min-height: 65vh;
+    position: relative;
+  }
+  main.wide {
+    max-width: var(--max-width-wide);
+  }
+
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    padding: 2.5rem 1.5rem;
+    background: var(--color-bg-alt);
+  }
+
+  .footer-inner {
+    max-width: var(--max-width-wide);
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  .logo {
+
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--color-border);
+    color: var(--color-muted);
+    font-family: var(--font-display);
     font-weight: 700;
-    font-size: 1.1rem;
-    color: var(--color-text);
+    font-size: 0.7rem;
+    border-radius: 7px;
   }
-  .logo:hover { text-decoration: none; }
-  nav { display: flex; gap: 1.5rem; }
-  nav a { color: var(--color-muted); font-size: 0.95rem; }
-  nav a:hover { color: var(--color-text); text-decoration: none; }
-  nav a.active { color: var(--color-accent); font-weight: 500; }
-  main {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 3rem 1.5rem;
-    min-height: 60vh;
+
+  .footer-left p {
+    color: var(--color-muted);
+    font-size: 0.85rem;
+    margin: 0;
   }
-  .site-footer {
-    border-top: 1px solid var(--color-border);
-    padding: 2rem 1.5rem;
-    text-align: center;
+
+  .footer-right {
+    display: flex;
+    gap: 1.5rem;
+  }
+  .footer-right a {
     color: var(--color-muted);
     font-size: 0.85rem;
   }
-  .footer-inner {
-    max-width: var(--max-width);
-    margin: 0 auto;
+  .footer-right a:hover { color: var(--color-accent); }
+
+  @media (max-width: 640px) {
+    .logo-text { display: none; }
+
+    nav {
+      display: none;
+      position: absolute;
+      top: 64px;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      background: rgba(250, 247, 242, 0.97);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--color-border);
+      padding: 1rem;
+      gap: 0.25rem;
+    }
+    nav.open { display: flex; }
+
+    .nav-toggle { display: flex; }
+
+    .footer-inner { flex-direction: column; gap: 1rem; text-align: center; }
+
+    main { padding: 2.5rem 1.25rem 4rem; }
   }
 </style>

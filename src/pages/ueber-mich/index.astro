@@ -1,0 +1,237 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Über mich" description="Über Tobias Oberrauch — Software Engineer, KI und Hochbegabung">
+  <section class="page-header reveal">
+    <div class="page-badge reveal reveal-delay-1">Persönlich</div>
+    <h1 class="reveal reveal-delay-2">Über mich</h1>
+  </section>
+
+  <div class="about-content">
+    <div class="about-intro reveal reveal-delay-3">
+      <div class="portrait-placeholder">
+        <span>TO</span>
+      </div>
+      <div class="intro-text">
+        <p class="lead">
+          Ich bin Tobias Oberrauch, Software Engineer aus Holzmaden bei Stuttgart.
+          Ich arbeite an der Schnittstelle von Technologie und Mensch — mit besonderem
+          Interesse an künstlicher Intelligenz und Automatisierung.
+        </p>
+      </div>
+    </div>
+
+    <section class="about-section reveal reveal-delay-4">
+      <h2>Hochbegabung & Engagement</h2>
+      <p>
+        Seit Januar 2026 leite ich gemeinsam mit meiner Frau Arkan die
+        <a href="https://lvh-bw.de" target="_blank" rel="noopener">Elterngruppe Nürtingen / Kirchheim-Teck</a>
+        des Landesverbands Hochbegabung Baden-Württemberg. Dort organisieren wir
+        Treffen für Familien hochbegabter Kinder und bauen ein lokales Netzwerk auf.
+      </p>
+      <p>
+        Das Thema Hochbegabung liegt mir am Herzen, weil ich aus eigener Erfahrung weiß,
+        wie wichtig es ist, dass Kinder in ihrer Einzigartigkeit gesehen und gefördert werden.
+      </p>
+    </section>
+
+    <section class="about-section reveal reveal-delay-5">
+      <h2>Was ich hier mache</h2>
+      <ul class="what-list">
+        <li>
+          <span class="what-icon">✦</span>
+          <span>Recherchen und Artikel zu Hochbegabung teilen</span>
+        </li>
+        <li>
+          <span class="what-icon">✦</span>
+          <span>Prototypen und interaktive Visualisierungen bauen</span>
+        </li>
+        <li>
+          <span class="what-icon">✦</span>
+          <span>Technische Experimente dokumentieren</span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="contact-section reveal reveal-delay-6">
+      <h2>Kontakt</h2>
+      <div class="contact-cards">
+        <a href="mailto:tobias.oberrauch@gmx.de" class="contact-card">
+          <div class="contact-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4L12 13L2 4"/>
+            </svg>
+          </div>
+          <div>
+            <div class="contact-label">E-Mail</div>
+            <div class="contact-value">tobias.oberrauch@gmx.de</div>
+          </div>
+        </a>
+        <a href="https://github.com/tobiasoberrauch" target="_blank" rel="noopener" class="contact-card">
+          <div class="contact-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="contact-label">GitHub</div>
+            <div class="contact-value">@tobiasoberrauch</div>
+          </div>
+        </a>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .page-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .page-badge {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    background: var(--color-accent-light);
+    padding: 0.3rem 0.9rem;
+    border-radius: 99px;
+    margin-bottom: 1.25rem;
+  }
+
+  .about-intro {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    margin-bottom: 3rem;
+  }
+
+  .portrait-placeholder {
+    flex-shrink: 0;
+    width: 88px;
+    height: 88px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--color-accent), #D97706);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.6rem;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 20px var(--color-accent-glow);
+  }
+
+  .intro-text .lead {
+    font-size: 1.15rem;
+    line-height: 1.75;
+    color: var(--color-text-soft);
+    margin: 0;
+  }
+
+  .about-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .about-section h2 {
+    margin-top: 0;
+  }
+
+  .about-section p {
+    line-height: 1.8;
+    font-size: 1.02rem;
+  }
+
+  .what-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .what-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.98rem;
+    transition: all var(--transition);
+  }
+  .what-list li:hover {
+    border-color: var(--color-accent);
+    transform: translateX(4px);
+  }
+
+  .what-icon {
+    color: var(--color-accent);
+    font-size: 0.85rem;
+  }
+
+  .contact-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+
+  .contact-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    transition: all var(--transition);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+  .contact-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    color: var(--color-text);
+  }
+
+  .contact-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    background: var(--color-accent-light);
+    color: var(--color-accent);
+    border-radius: 10px;
+    flex-shrink: 0;
+    transition: all var(--transition);
+  }
+  .contact-card:hover .contact-icon {
+    background: var(--color-accent);
+    color: white;
+  }
+
+  .contact-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+    font-weight: 500;
+    margin-bottom: 0.15rem;
+  }
+  .contact-value {
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  @media (max-width: 640px) {
+    .about-intro { flex-direction: column; gap: 1.25rem; }
+    .contact-cards { grid-template-columns: 1fr; }
+  }
+</style>
