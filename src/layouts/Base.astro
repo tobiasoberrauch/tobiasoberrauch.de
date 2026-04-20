@@ -1,0 +1,96 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'Tobias Oberrauch - Software Engineer, Hochbegabung, Prototypen' } = Astro.props;
+const currentPath = Astro.url.pathname;
+
+const nav = [
+  { href: '/', label: 'Home' },
+  { href: '/hochbegabung/', label: 'Hochbegabung' },
+  { href: '/lab/', label: 'Lab' },
+  { href: '/about/', label: 'About' },
+];
+---
+
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>{title} | Tobias Oberrauch</title>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">tobiasoberrauch.de</a>
+      <nav>
+        {nav.map(({ href, label }) => (
+          <a href={href} class:list={[{ active: currentPath === href || (href !== '/' && currentPath.startsWith(href)) }]}>
+            {label}
+          </a>
+        ))}
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; {new Date().getFullYear()} Tobias Oberrauch</p>
+    </div>
+  </footer>
+</body>
+</html>
+
+<style is:global>
+  @import '../styles/global.css';
+</style>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--color-border);
+    padding: 1rem 1.5rem;
+  }
+  .header-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .logo {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--color-text);
+  }
+  .logo:hover { text-decoration: none; }
+  nav { display: flex; gap: 1.5rem; }
+  nav a { color: var(--color-muted); font-size: 0.95rem; }
+  nav a:hover { color: var(--color-text); text-decoration: none; }
+  nav a.active { color: var(--color-accent); font-weight: 500; }
+  main {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+    min-height: 60vh;
+  }
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 0.85rem;
+  }
+  .footer-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+  }
+</style>

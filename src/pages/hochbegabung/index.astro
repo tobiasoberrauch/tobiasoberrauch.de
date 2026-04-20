@@ -1,0 +1,69 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const mdxFiles = import.meta.glob('../../content/hochbegabung/*.mdx', { eager: true });
+const articles = Object.entries(mdxFiles).map(([path, mod]: [string, any]) => ({
+  title: mod.frontmatter?.title || path.split('/').pop()?.replace('.mdx', ''),
+  date: mod.frontmatter?.date,
+  slug: path.split('/').pop()?.replace('.mdx', ''),
+}));
+---
+
+<Base title="Hochbegabung" description="Recherchen, Artikel und Ressourcen rund um Hochbegabung">
+  <h1>Hochbegabung</h1>
+  <p class="intro">
+    Informationen, Recherchen und persoenliche Erfahrungen zum Thema Hochbegabung
+    bei Kindern und Erwachsenen. Als Elterngruppenleiter beim
+    <a href="https://lvh-bw.de" target="_blank">LVH Baden-Wuerttemberg</a>
+    sammle ich hier Wissen fuer Familien.
+  </p>
+
+  <section class="topics">
+    <div class="topic">
+      <h2>Erkennung & Testung</h2>
+      <p>Wie erkennt man Hochbegabung? Welche Tests gibt es? Ab welchem Alter ist eine Testung sinnvoll?</p>
+    </div>
+    <div class="topic">
+      <h2>Schule & Foerderung</h2>
+      <p>Schulwahl, Ueberspringen, Enrichment, Akzeleration — Wege fuer hochbegabte Kinder im Bildungssystem.</p>
+    </div>
+    <div class="topic">
+      <h2>Sozial-Emotionales</h2>
+      <p>Asynchrone Entwicklung, Perfektionismus, Unterforderung und der Umgang damit.</p>
+    </div>
+    <div class="topic">
+      <h2>Ressourcen</h2>
+      <p>Buecher, Anlaufstellen, Beratung und Netzwerke in Baden-Wuerttemberg.</p>
+    </div>
+  </section>
+
+  {articles.length > 0 && (
+    <section class="articles">
+      <h2>Artikel</h2>
+      <ul>
+        {articles.map((a) => (
+          <li>
+            <a href={`/hochbegabung/${a.slug}/`}>{a.title}</a>
+            {a.date && <span class="date">{a.date}</span>}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</Base>
+
+<style>
+  .intro { color: var(--color-muted); font-size: 1.1rem; margin-bottom: 2.5rem; max-width: 600px; }
+  .topics { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+  .topic {
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  .topic h2 { margin-top: 0; font-size: 1.2rem; }
+  .topic p { color: var(--color-muted); margin-bottom: 0; font-size: 0.95rem; }
+  .articles { margin-top: 3rem; }
+  .articles ul { list-style: none; padding: 0; }
+  .articles li { padding: 0.5rem 0; border-bottom: 1px solid var(--color-border); }
+  .date { color: var(--color-muted); font-size: 0.85rem; margin-left: 0.5rem; }
+</style>

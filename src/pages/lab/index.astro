@@ -1,0 +1,53 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Lab" description="Prototypen, Visualisierungen und interaktive Experimente">
+  <h1>Lab</h1>
+  <p class="intro">
+    Hier entstehen Prototypen, interaktive Visualisierungen, Diagramme und Experimente.
+    Alles, was ich ausprobiere und zeigen moechte.
+  </p>
+
+  <section class="experiments">
+    <div class="experiment placeholder">
+      <div class="tag">Demnachst</div>
+      <h2>Interaktive Visualisierungen</h2>
+      <p>D3.js-Charts, Netzwerk-Graphen und datengetriebene Darstellungen.</p>
+    </div>
+    <div class="experiment placeholder">
+      <div class="tag">Demnachst</div>
+      <h2>Prototypen</h2>
+      <p>Kleine Apps und Tools, die ich fuer verschiedene Zwecke baue.</p>
+    </div>
+    <div class="experiment placeholder">
+      <div class="tag">Demnachst</div>
+      <h2>Diagramme & Grafiken</h2>
+      <p>Technische Architektur-Diagramme, Flowcharts und Infografiken.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .intro { color: var(--color-muted); font-size: 1.1rem; margin-bottom: 2.5rem; max-width: 600px; }
+  .experiments { display: grid; gap: 1.5rem; }
+  .experiment {
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    position: relative;
+  }
+  .experiment h2 { margin-top: 0; font-size: 1.2rem; }
+  .experiment p { color: var(--color-muted); margin-bottom: 0; }
+  .tag {
+    display: inline-block;
+    background: var(--color-accent-light);
+    color: var(--color-accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 99px;
+    margin-bottom: 0.75rem;
+  }
+  .placeholder { opacity: 0.7; }
+</style>
