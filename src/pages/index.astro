@@ -12,9 +12,7 @@ import WaveSection from '../components/WaveSection';
     </div>
     <div class="hero-content">
       <div class="hero-intro reveal reveal-delay-1">
-        <div class="hero-avatar">
-          <span>TO</span>
-        </div>
+        <img src="/images/tobias-github.jpg" alt="Tobias Oberrauch" class="hero-avatar" width="56" height="56" />
         <div>
           <div class="hero-badge">KI-Beauftragter · Software Engineer · Vater</div>
         </div>
@@ -246,20 +244,13 @@ import WaveSection from '../components/WaveSection';
   }
 
   .hero-avatar {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--color-accent), #D97706);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1rem;
-    letter-spacing: 0.02em;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    object-fit: cover;
     box-shadow: 0 4px 16px var(--color-accent-glow);
     flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.8);
   }
 
   .hero-badge {

@@ -11,9 +11,7 @@ import Base from '../../layouts/Base.astro';
   <div class="about-layout">
     <!-- Intro with avatar -->
     <div class="about-hero reveal reveal-delay-3">
-      <div class="portrait-placeholder">
-        <span>TO</span>
-      </div>
+      <img src="/images/tobias-audius.webp" alt="Tobias Oberrauch — KI-Beauftragter bei audius" class="portrait-photo" width="96" height="96" />
       <div class="hero-meta">
         <h2 class="hero-name">Tobias Oberrauch</h2>
         <p class="hero-title">KI-Beauftragter bei audius</p>
@@ -218,21 +216,14 @@ import Base from '../../layouts/Base.astro';
     border-radius: var(--radius);
   }
 
-  .portrait-placeholder {
+  .portrait-photo {
     flex-shrink: 0;
     width: 96px;
     height: 96px;
     border-radius: 22px;
-    background: linear-gradient(135deg, var(--color-accent), #D97706);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1.8rem;
-    letter-spacing: 0.02em;
+    object-fit: cover;
     box-shadow: 0 4px 20px var(--color-accent-glow);
+    border: 3px solid rgba(255, 255, 255, 0.9);
   }
 
   .hero-name {
