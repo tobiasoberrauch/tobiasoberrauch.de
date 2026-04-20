@@ -11,17 +11,37 @@ import WaveSection from '../components/WaveSection';
       <HeroCanvas client:load />
     </div>
     <div class="hero-content">
-      <div class="hero-badge reveal reveal-delay-1">Software Engineer · KI · Hochbegabung</div>
+      <div class="hero-intro reveal reveal-delay-1">
+        <div class="hero-avatar">
+          <span>TO</span>
+        </div>
+        <div>
+          <div class="hero-badge">KI-Beauftragter · Software Engineer · Vater</div>
+        </div>
+      </div>
       <h1 class="reveal reveal-delay-2">
-        Hallo, ich bin<br/><span class="name-highlight">Tobias</span>.
+        Tobias<br/><span class="name-highlight">Oberrauch</span>
       </h1>
       <p class="lead reveal reveal-delay-3">
-        Ich baue Dinge, die komplexe Themen greifbar machen — von künstlicher Intelligenz
-        bis zur Förderung hochbegabter Kinder.
+        Ich verantworte den Bereich Künstliche Intelligenz bei
+        <a href="https://www.audius.de" target="_blank" rel="noopener" class="inline-link">audius</a>
+        und engagiere mich als Elterngruppenleiter für hochbegabte Kinder
+        in Baden-Württemberg.
       </p>
       <div class="hero-links reveal reveal-delay-4">
         <a href="/hochbegabung/" class="btn-primary">Hochbegabung entdecken</a>
-        <a href="/ueber-mich/" class="btn-ghost">Mehr über mich</a>
+        <a href="/lab/" class="btn-ghost">Meine Projekte</a>
+      </div>
+      <div class="hero-social reveal reveal-delay-5">
+        <a href="https://github.com/tobiasoberrauch" target="_blank" rel="noopener" aria-label="GitHub" class="social-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+        <a href="https://de.linkedin.com/in/tobiasoberrauch" target="_blank" rel="noopener" aria-label="LinkedIn" class="social-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <a href="mailto:tobias.oberrauch@gmx.de" aria-label="E-Mail" class="social-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4L12 13L2 4"/></svg>
+        </a>
       </div>
     </div>
   </section>
@@ -30,80 +50,166 @@ import WaveSection from '../components/WaveSection';
     <WaveSection client:visible />
   </div>
 
-  <section class="section-intro scroll-reveal">
-    <h2 class="section-label">Was mich bewegt</h2>
-    <p class="section-desc">
-      Drei Bereiche, die mich antreiben — und die ich hier mit euch teile.
-    </p>
+  <!-- Personal profile section -->
+  <section class="profile-section scroll-reveal">
+    <div class="profile-grid">
+      <div class="profile-main">
+        <h2 class="section-label">Wer ich bin</h2>
+        <p class="profile-text">
+          Ich bin Software Engineer aus <strong>Holzmaden</strong> bei Stuttgart und arbeite
+          als <strong>KI-Beauftragter bei audius</strong>. Dort verantworte ich den
+          verantwortungsvollen Einsatz neuer Technologien — mit Fokus auf Ethik,
+          Datenschutz und digitale Souveränität.
+        </p>
+        <p class="profile-text">
+          Privat engagiere ich mich seit Januar 2026 als <strong>Elterngruppenleiter</strong>
+          beim <a href="https://lvh-bw.de" target="_blank" rel="noopener">LVH Baden-Württemberg</a>
+          — gemeinsam mit meiner Frau Arkan leiten wir die Elterngruppe
+          Nürtingen / Kirchheim-Teck für Familien hochbegabter Kinder.
+        </p>
+      </div>
+      <div class="profile-facts">
+        <div class="fact-card">
+          <div class="fact-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="fact-content">
+            <span class="fact-label">Beruf</span>
+            <span class="fact-value">KI-Beauftragter bei audius</span>
+          </div>
+        </div>
+        <div class="fact-card">
+          <div class="fact-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div class="fact-content">
+            <span class="fact-label">Auf GitHub seit</span>
+            <span class="fact-value">2010 · 97 Repos</span>
+          </div>
+        </div>
+        <div class="fact-card">
+          <div class="fact-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <div class="fact-content">
+            <span class="fact-label">Ehrenamt</span>
+            <span class="fact-value">EG-Leiter LVH seit 01/2026</span>
+          </div>
+        </div>
+        <div class="fact-card">
+          <div class="fact-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="fact-content">
+            <span class="fact-label">Standort</span>
+            <span class="fact-value">Holzmaden, Baden-Württemberg</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <!-- Full-width cards -->
-  <section class="cards">
-    <a href="/hochbegabung/" class="card scroll-reveal">
-      <div class="card-visual">
-        <svg viewBox="0 0 200 120" fill="none">
-          <circle cx="100" cy="60" r="40" stroke="#B45309" stroke-width="1" opacity="0.3"/>
-          <circle cx="100" cy="60" r="25" stroke="#B45309" stroke-width="1.5" opacity="0.5"/>
-          <circle cx="100" cy="60" r="10" fill="#B45309" opacity="0.7"/>
-          <circle cx="60" cy="40" r="4" fill="#D97706" opacity="0.5"/>
-          <circle cx="140" cy="80" r="4" fill="#D97706" opacity="0.5"/>
-          <circle cx="130" cy="35" r="3" fill="#4D7C6A" opacity="0.5"/>
-          <circle cx="70" cy="85" r="3" fill="#4D7C6A" opacity="0.5"/>
-          <line x1="100" y1="60" x2="60" y2="40" stroke="#B45309" stroke-width="0.5" opacity="0.3"/>
-          <line x1="100" y1="60" x2="140" y2="80" stroke="#B45309" stroke-width="0.5" opacity="0.3"/>
-          <line x1="100" y1="60" x2="130" y2="35" stroke="#4D7C6A" stroke-width="0.5" opacity="0.3"/>
-          <line x1="100" y1="60" x2="70" y2="85" stroke="#4D7C6A" stroke-width="0.5" opacity="0.3"/>
-          <text x="100" y="63" text-anchor="middle" font-size="10" font-family="Outfit" fill="#B45309" font-weight="600">2%</text>
-        </svg>
+  <!-- Focus areas -->
+  <section class="focus-section">
+    <h2 class="section-label-center scroll-reveal">Meine Schwerpunkte</h2>
+    <div class="focus-grid">
+      <div class="focus-card scroll-reveal">
+        <div class="focus-number">01</div>
+        <h3>Künstliche Intelligenz</h3>
+        <p>RAG-Systeme, lokale LLMs mit Ollama, Text-Klassifikation, verantwortungsvoller KI-Einsatz in Unternehmen. Privat und souverän.</p>
+        <div class="focus-tags">
+          <span>RAG</span><span>LLMs</span><span>Ollama</span><span>Python</span>
+        </div>
       </div>
-      <div class="card-body">
-        <h2>Hochbegabung</h2>
-        <p>Recherchen, Artikel und Ressourcen für Familien hochbegabter Kinder in Baden-Württemberg.</p>
-        <span class="card-link">Zum Bereich →</span>
+      <div class="focus-card scroll-reveal sr-delay-1">
+        <div class="focus-number">02</div>
+        <h3>Hochbegabung</h3>
+        <p>Elterngruppe leiten, Familien vernetzen, Wissen teilen. Für Kinder, die anders denken — und Eltern, die Antworten suchen.</p>
+        <div class="focus-tags">
+          <span>LVH-BW</span><span>Elterngruppe</span><span>Nürtingen</span>
+        </div>
       </div>
-    </a>
+      <div class="focus-card scroll-reveal sr-delay-2">
+        <div class="focus-number">03</div>
+        <h3>Open Source & Prototypen</h3>
+        <p>Von rag-showcase über ollama-monitor bis zum parameter-golf — ich baue Tools, die KI greifbar und nutzbar machen.</p>
+        <div class="focus-tags">
+          <span>TypeScript</span><span>Astro</span><span>Rust</span><span>GitHub</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <a href="/lab/" class="card scroll-reveal sr-delay-1">
-      <div class="card-visual">
-        <svg viewBox="0 0 200 120" fill="none">
-          <rect x="30" y="20" width="140" height="80" rx="8" stroke="#D97706" stroke-width="0.8" opacity="0.2"/>
-          <polyline points="40,80 65,55 85,68 110,35 135,50 160,25" stroke="#B45309" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
-          <polyline points="40,85 70,70 100,75 130,60 160,65" stroke="#4D7C6A" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
-          <circle cx="110" cy="35" r="4" fill="#B45309" opacity="0.7"/>
-          <circle cx="160" cy="25" r="3" fill="#B45309" opacity="0.5"/>
-          <circle cx="65" cy="55" r="3" fill="#B45309" opacity="0.5"/>
-        </svg>
-      </div>
-      <div class="card-body">
-        <h2>Lab</h2>
-        <p>Prototypen, interaktive Visualisierungen, Diagramme und technische Experimente.</p>
-        <span class="card-link">Erkunden →</span>
-      </div>
-    </a>
+  <!-- Navigation cards -->
+  <section class="nav-section">
+    <h2 class="section-label-center scroll-reveal">Entdecken</h2>
+    <div class="cards">
+      <a href="/hochbegabung/" class="card scroll-reveal">
+        <div class="card-visual">
+          <svg viewBox="0 0 200 120" fill="none">
+            <circle cx="100" cy="60" r="40" stroke="#B45309" stroke-width="1" opacity="0.3"/>
+            <circle cx="100" cy="60" r="25" stroke="#B45309" stroke-width="1.5" opacity="0.5"/>
+            <circle cx="100" cy="60" r="10" fill="#B45309" opacity="0.7"/>
+            <circle cx="60" cy="40" r="4" fill="#D97706" opacity="0.5"/>
+            <circle cx="140" cy="80" r="4" fill="#D97706" opacity="0.5"/>
+            <circle cx="130" cy="35" r="3" fill="#4D7C6A" opacity="0.5"/>
+            <circle cx="70" cy="85" r="3" fill="#4D7C6A" opacity="0.5"/>
+            <line x1="100" y1="60" x2="60" y2="40" stroke="#B45309" stroke-width="0.5" opacity="0.3"/>
+            <line x1="100" y1="60" x2="140" y2="80" stroke="#B45309" stroke-width="0.5" opacity="0.3"/>
+            <line x1="100" y1="60" x2="130" y2="35" stroke="#4D7C6A" stroke-width="0.5" opacity="0.3"/>
+            <line x1="100" y1="60" x2="70" y2="85" stroke="#4D7C6A" stroke-width="0.5" opacity="0.3"/>
+            <text x="100" y="63" text-anchor="middle" font-size="10" font-family="Outfit" fill="#B45309" font-weight="600">2%</text>
+          </svg>
+        </div>
+        <div class="card-body">
+          <h2>Hochbegabung</h2>
+          <p>Recherchen, Artikel und Ressourcen für Familien hochbegabter Kinder in Baden-Württemberg.</p>
+          <span class="card-link">Zum Bereich &rarr;</span>
+        </div>
+      </a>
 
-    <a href="/ueber-mich/" class="card scroll-reveal sr-delay-2">
-      <div class="card-visual">
-        <svg viewBox="0 0 200 120" fill="none">
-          <circle cx="100" cy="45" r="20" stroke="#B45309" stroke-width="1.5" opacity="0.4"/>
-          <path d="M65 95 A40 30 0 0 1 135 95" stroke="#B45309" stroke-width="1.5" fill="none" opacity="0.3"/>
-          <circle cx="60" cy="65" r="10" stroke="#4D7C6A" stroke-width="1" opacity="0.3"/>
-          <circle cx="140" cy="65" r="10" stroke="#4D7C6A" stroke-width="1" opacity="0.3"/>
-          <line x1="70" y1="65" x2="90" y2="55" stroke="#78716C" stroke-width="0.5" opacity="0.3"/>
-          <line x1="130" y1="65" x2="110" y2="55" stroke="#78716C" stroke-width="0.5" opacity="0.3"/>
-          <circle cx="100" cy="45" r="6" fill="#B45309" opacity="0.15"/>
-        </svg>
-      </div>
-      <div class="card-body">
-        <h2>Über mich</h2>
-        <p>Wer ich bin, woran ich glaube und wie du mich erreichen kannst.</p>
-        <span class="card-link">Kennenlernen →</span>
-      </div>
-    </a>
+      <a href="/lab/" class="card scroll-reveal sr-delay-1">
+        <div class="card-visual">
+          <svg viewBox="0 0 200 120" fill="none">
+            <rect x="30" y="20" width="140" height="80" rx="8" stroke="#D97706" stroke-width="0.8" opacity="0.2"/>
+            <polyline points="40,80 65,55 85,68 110,35 135,50 160,25" stroke="#B45309" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+            <polyline points="40,85 70,70 100,75 130,60 160,65" stroke="#4D7C6A" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+            <circle cx="110" cy="35" r="4" fill="#B45309" opacity="0.7"/>
+            <circle cx="160" cy="25" r="3" fill="#B45309" opacity="0.5"/>
+            <circle cx="65" cy="55" r="3" fill="#B45309" opacity="0.5"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <h2>Lab</h2>
+          <p>Prototypen, interaktive Visualisierungen und technische Experimente mit KI.</p>
+          <span class="card-link">Erkunden &rarr;</span>
+        </div>
+      </a>
+
+      <a href="/ueber-mich/" class="card scroll-reveal sr-delay-2">
+        <div class="card-visual">
+          <svg viewBox="0 0 200 120" fill="none">
+            <circle cx="100" cy="45" r="20" stroke="#B45309" stroke-width="1.5" opacity="0.4"/>
+            <path d="M65 95 A40 30 0 0 1 135 95" stroke="#B45309" stroke-width="1.5" fill="none" opacity="0.3"/>
+            <circle cx="60" cy="65" r="10" stroke="#4D7C6A" stroke-width="1" opacity="0.3"/>
+            <circle cx="140" cy="65" r="10" stroke="#4D7C6A" stroke-width="1" opacity="0.3"/>
+            <line x1="70" y1="65" x2="90" y2="55" stroke="#78716C" stroke-width="0.5" opacity="0.3"/>
+            <line x1="130" y1="65" x2="110" y2="55" stroke="#78716C" stroke-width="0.5" opacity="0.3"/>
+            <circle cx="100" cy="45" r="6" fill="#B45309" opacity="0.15"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <h2>Über mich</h2>
+          <p>Wer ich bin, woran ich glaube und wie du mich erreichen kannst.</p>
+          <span class="card-link">Kennenlernen &rarr;</span>
+        </div>
+      </a>
+    </div>
   </section>
 
   <section class="quote-section scroll-reveal">
     <blockquote>
-      „Hochbegabung ist kein Luxusproblem, sondern ein Förderbedarf."
+      &bdquo;Hochbegabung ist kein Luxusproblem, sondern ein Förderbedarf.&ldquo;
     </blockquote>
   </section>
 </Base>
@@ -112,7 +218,7 @@ import WaveSection from '../components/WaveSection';
   /* Full-bleed hero */
   .hero {
     position: relative;
-    min-height: 520px;
+    min-height: 580px;
     display: flex;
     align-items: center;
     margin: 0 calc(var(--padding-x) * -1);
@@ -129,7 +235,31 @@ import WaveSection from '../components/WaveSection';
   .hero-content {
     position: relative;
     z-index: 1;
-    max-width: 640px;
+    max-width: 680px;
+  }
+
+  .hero-intro {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--color-accent), #D97706);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 16px var(--color-accent-glow);
+    flex-shrink: 0;
   }
 
   .hero-badge {
@@ -143,7 +273,6 @@ import WaveSection from '../components/WaveSection';
     backdrop-filter: blur(8px);
     padding: 0.35rem 1rem;
     border-radius: 99px;
-    margin-bottom: 1.5rem;
     border: 1px solid rgba(180, 83, 9, 0.1);
   }
 
@@ -167,11 +296,48 @@ import WaveSection from '../components/WaveSection';
     font-size: clamp(1.05rem, 1.5vw, 1.25rem);
     line-height: 1.7;
     color: var(--color-muted);
-    max-width: 520px;
+    max-width: 560px;
     margin-bottom: 2rem;
   }
 
-  .hero-links { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .lead .inline-link {
+    color: var(--color-accent);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: rgba(180, 83, 9, 0.3);
+    text-underline-offset: 2px;
+    transition: text-decoration-color var(--transition);
+  }
+  .lead .inline-link:hover {
+    text-decoration-color: var(--color-accent);
+  }
+
+  .hero-links { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
+
+  .hero-social {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    color: var(--color-muted);
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--color-border);
+    transition: all var(--transition);
+    backdrop-filter: blur(8px);
+  }
+  .social-link:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background: rgba(254, 243, 199, 0.5);
+    transform: translateY(-2px);
+  }
 
   .btn-primary {
     display: inline-flex;
@@ -219,28 +385,190 @@ import WaveSection from '../components/WaveSection';
     line-height: 0;
   }
 
-  .section-intro {
-    text-align: center;
-    margin: 3.5rem 0 3rem;
+  /* Profile section */
+  .profile-section {
+    padding: 3rem 0 2rem;
   }
+
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
   .section-label {
     font-size: clamp(1.4rem, 2.5vw, 1.8rem);
     margin-top: 0;
-    margin-bottom: 0.5rem;
-  }
-  .section-desc {
-    color: var(--color-muted);
-    font-size: 1.05rem;
-    max-width: 460px;
-    margin: 0 auto;
+    margin-bottom: 1rem;
   }
 
-  /* Full-width 3-column cards */
+  .section-label-center {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+    font-weight: 600;
+    text-align: center;
+    margin: 0 0 2rem;
+    letter-spacing: -0.02em;
+  }
+
+  .profile-text {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--color-text-soft);
+    margin-bottom: 1rem;
+  }
+  .profile-text strong {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+  .profile-text a {
+    font-weight: 500;
+  }
+
+  .profile-facts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .fact-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition);
+  }
+  .fact-card:hover {
+    border-color: var(--color-accent);
+    transform: translateX(4px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .fact-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--color-accent-light);
+    color: var(--color-accent);
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+
+  .fact-content {
+    display: flex;
+    flex-direction: column;
+  }
+  .fact-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+  }
+  .fact-value {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  /* Focus section */
+  .focus-section {
+    padding: 2rem 0 3rem;
+  }
+
+  .focus-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .focus-card {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    transition: all var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .focus-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-secondary));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .focus-card:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  .focus-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .focus-number {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--color-border-hover);
+    margin-bottom: 0.75rem;
+    font-variation-settings: 'opsz' 72;
+    line-height: 1;
+  }
+  .focus-card:hover .focus-number {
+    color: var(--color-accent);
+  }
+
+  .focus-card h3 {
+    font-size: 1.2rem;
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+  }
+
+  .focus-card p {
+    color: var(--color-muted);
+    font-size: 0.93rem;
+    line-height: 1.65;
+    margin-bottom: 1rem;
+  }
+
+  .focus-tags {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+  .focus-tags span {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--color-muted);
+    background: var(--color-bg-alt);
+    padding: 0.15rem 0.55rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+  }
+
+  /* Navigation cards */
+  .nav-section {
+    padding: 1rem 0 3rem;
+  }
+
   .cards {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
-    margin-bottom: 4rem;
+    margin-bottom: 3rem;
   }
 
   .card {
@@ -305,7 +633,7 @@ import WaveSection from '../components/WaveSection';
   }
 
   .quote-section {
-    max-width: 600px;
+    max-width: 700px;
     margin: 0 auto 2rem;
   }
   .quote-section blockquote {
@@ -318,21 +646,26 @@ import WaveSection from '../components/WaveSection';
 
   /* Tablet */
   @media (max-width: 1024px) {
+    .profile-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .focus-grid { grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
     .cards { grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
   }
 
   /* Tablet portrait */
   @media (max-width: 768px) {
-    .hero { min-height: 420px; padding: 3.5rem var(--padding-x) 3rem; }
+    .hero { min-height: 480px; padding: 3.5rem var(--padding-x) 3rem; }
+    .profile-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .focus-grid { grid-template-columns: 1fr 1fr; }
     .cards { grid-template-columns: 1fr 1fr; }
-    .cards .card:last-child { grid-column: 1 / -1; }
-    .cards .card:last-child { max-width: 50%; margin: 0 auto; }
+    .cards .card:last-child { grid-column: 1 / -1; max-width: 50%; margin: 0 auto; }
   }
 
   /* Mobile */
   @media (max-width: 640px) {
-    .hero { min-height: 380px; padding: 2.5rem var(--padding-x) 2rem; }
+    .hero { min-height: 420px; padding: 2.5rem var(--padding-x) 2rem; }
     .hero h1 { font-size: 2.6rem; }
+    .hero-intro { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .focus-grid { grid-template-columns: 1fr; }
     .cards { grid-template-columns: 1fr; }
     .cards .card:last-child { max-width: 100%; }
     .card-visual { padding: 1.5rem 1.5rem 0.5rem; }

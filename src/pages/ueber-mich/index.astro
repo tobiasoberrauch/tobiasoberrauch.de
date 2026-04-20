@@ -2,59 +2,152 @@
 import Base from '../../layouts/Base.astro';
 ---
 
-<Base title="Über mich" description="Über Tobias Oberrauch — Software Engineer, KI und Hochbegabung">
+<Base title="Über mich" description="Über Tobias Oberrauch — KI-Beauftragter bei audius, Software Engineer und Elterngruppenleiter">
   <section class="page-header reveal">
     <div class="page-badge reveal reveal-delay-1">Persönlich</div>
     <h1 class="reveal reveal-delay-2">Über mich</h1>
   </section>
 
-  <div class="about-content">
-    <div class="about-intro reveal reveal-delay-3">
+  <div class="about-layout">
+    <!-- Intro with avatar -->
+    <div class="about-hero reveal reveal-delay-3">
       <div class="portrait-placeholder">
         <span>TO</span>
       </div>
-      <div class="intro-text">
-        <p class="lead">
-          Ich bin Tobias Oberrauch, Software Engineer aus Holzmaden bei Stuttgart.
-          Ich arbeite an der Schnittstelle von Technologie und Mensch — mit besonderem
-          Interesse an künstlicher Intelligenz und Automatisierung.
+      <div class="hero-meta">
+        <h2 class="hero-name">Tobias Oberrauch</h2>
+        <p class="hero-title">KI-Beauftragter bei audius</p>
+        <p class="hero-location">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Holzmaden, Baden-Württemberg
         </p>
       </div>
     </div>
 
-    <section class="about-section reveal reveal-delay-4">
-      <h2>Hochbegabung & Engagement</h2>
-      <p>
-        Seit Januar 2026 leite ich gemeinsam mit meiner Frau Arkan die
-        <a href="https://lvh-bw.de" target="_blank" rel="noopener">Elterngruppe Nürtingen / Kirchheim-Teck</a>
-        des Landesverbands Hochbegabung Baden-Württemberg. Dort organisieren wir
-        Treffen für Familien hochbegabter Kinder und bauen ein lokales Netzwerk auf.
-      </p>
-      <p>
-        Das Thema Hochbegabung liegt mir am Herzen, weil ich aus eigener Erfahrung weiß,
-        wie wichtig es ist, dass Kinder in ihrer Einzigartigkeit gesehen und gefördert werden.
-      </p>
-    </section>
+    <!-- Main content grid -->
+    <div class="about-grid">
+      <div class="about-main">
+        <section class="about-section reveal reveal-delay-4">
+          <h2>Beruflich</h2>
+          <p>
+            Als <strong>KI-Beauftragter bei <a href="https://www.audius.de" target="_blank" rel="noopener">audius</a></strong>
+            verantworte ich den verantwortungsvollen Einsatz künstlicher Intelligenz im Unternehmen.
+            Dabei stehen ethische Aspekte, Datenschutz und Innovationskraft im Fokus —
+            für nachhaltige und sichere KI-Lösungen.
+          </p>
+          <p>
+            Meine Schwerpunkte liegen in RAG-Systemen, lokalen LLMs, Text-Klassifikation
+            und dem Aufbau souveräner KI-Infrastruktur. Ich bin überzeugt, dass KI nur dann
+            Vertrauen verdient, wenn sie transparent, privat und unter eigener Kontrolle läuft.
+          </p>
+        </section>
 
-    <section class="about-section reveal reveal-delay-5">
-      <h2>Was ich hier mache</h2>
-      <ul class="what-list">
-        <li>
-          <span class="what-icon">✦</span>
-          <span>Recherchen und Artikel zu Hochbegabung teilen</span>
-        </li>
-        <li>
-          <span class="what-icon">✦</span>
-          <span>Prototypen und interaktive Visualisierungen bauen</span>
-        </li>
-        <li>
-          <span class="what-icon">✦</span>
-          <span>Technische Experimente dokumentieren</span>
-        </li>
-      </ul>
-    </section>
+        <section class="about-section reveal reveal-delay-5">
+          <h2>Hochbegabung &amp; Engagement</h2>
+          <p>
+            Seit Januar 2026 leite ich gemeinsam mit meiner Frau <strong>Arkan</strong> die
+            <a href="https://lvh-bw.de" target="_blank" rel="noopener">Elterngruppe Nürtingen / Kirchheim-Teck</a>
+            des Landesverbands Hochbegabung Baden-Württemberg. Dort organisieren wir
+            regelmäßige Spielenachmittage und bauen ein lokales Netzwerk für Familien
+            hochbegabter Kinder auf.
+          </p>
+          <p>
+            Das Thema Hochbegabung liegt mir am Herzen, weil ich aus eigener Erfahrung weiß,
+            wie wichtig es ist, dass Kinder in ihrer Einzigartigkeit gesehen und gefördert werden.
+          </p>
+        </section>
 
-    <section class="contact-section reveal reveal-delay-6">
+        <section class="about-section reveal reveal-delay-6">
+          <h2>Was ich hier mache</h2>
+          <ul class="what-list">
+            <li>
+              <span class="what-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+              </span>
+              <span>Recherchen und Artikel zu Hochbegabung teilen</span>
+            </li>
+            <li>
+              <span class="what-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </span>
+              <span>Prototypen und interaktive Visualisierungen bauen</span>
+            </li>
+            <li>
+              <span class="what-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+              </span>
+              <span>Technische Experimente dokumentieren und Open Source beitragen</span>
+            </li>
+          </ul>
+        </section>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="about-sidebar">
+        <div class="sidebar-card reveal reveal-delay-4">
+          <h3>Steckbrief</h3>
+          <dl class="steckbrief">
+            <dt>Rolle</dt>
+            <dd>KI-Beauftragter</dd>
+            <dt>Firma</dt>
+            <dd><a href="https://www.audius.de" target="_blank" rel="noopener">audius</a></dd>
+            <dt>Standort</dt>
+            <dd>Holzmaden</dd>
+            <dt>Ehrenamt</dt>
+            <dd>EG-Leiter LVH-BW</dd>
+            <dt>Auf GitHub seit</dt>
+            <dd>2010</dd>
+            <dt>Repos</dt>
+            <dd>97+</dd>
+            <dt>Follower</dt>
+            <dd>6.200+ (LinkedIn)</dd>
+          </dl>
+        </div>
+
+        <div class="sidebar-card reveal reveal-delay-5">
+          <h3>Technologien</h3>
+          <div class="tech-tags">
+            <span>Python</span>
+            <span>TypeScript</span>
+            <span>Rust</span>
+            <span>Astro</span>
+            <span>RAG</span>
+            <span>Ollama</span>
+            <span>LLMs</span>
+            <span>Claude</span>
+            <span>Angular</span>
+            <span>SQLite</span>
+          </div>
+        </div>
+
+        <div class="sidebar-card reveal reveal-delay-6">
+          <h3>Projekte</h3>
+          <ul class="project-list">
+            <li>
+              <a href="https://github.com/tobiasoberrauch/rag-showcase" target="_blank" rel="noopener">
+                <strong>rag-showcase</strong>
+                <span>RAG-Demonstration</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/tobiasoberrauch/ollama-monitor" target="_blank" rel="noopener">
+                <strong>ollama-monitor</strong>
+                <span>Terminal-Monitor für Ollama</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/tobiasoberrauch/parameter-golf" target="_blank" rel="noopener">
+                <strong>parameter-golf</strong>
+                <span>Kleinstes LM-Training</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Contact section -->
+    <section class="contact-section scroll-reveal">
       <h2>Kontakt</h2>
       <div class="contact-cards">
         <a href="mailto:tobias.oberrauch@gmx.de" class="contact-card">
@@ -79,6 +172,17 @@ import Base from '../../layouts/Base.astro';
             <div class="contact-value">@tobiasoberrauch</div>
           </div>
         </a>
+        <a href="https://de.linkedin.com/in/tobiasoberrauch" target="_blank" rel="noopener" class="contact-card">
+          <div class="contact-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="contact-label">LinkedIn</div>
+            <div class="contact-value">Tobias Oberrauch</div>
+          </div>
+        </a>
       </div>
     </section>
   </div>
@@ -86,7 +190,7 @@ import Base from '../../layouts/Base.astro';
 
 <style>
   .page-header {
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
   }
 
   .page-badge {
@@ -102,22 +206,23 @@ import Base from '../../layouts/Base.astro';
     margin-bottom: 1.25rem;
   }
 
-  .about-content {
-    max-width: 900px;
-  }
-
-  .about-intro {
+  /* Hero intro */
+  .about-hero {
     display: flex;
-    gap: 2rem;
-    align-items: flex-start;
+    align-items: center;
+    gap: 1.5rem;
     margin-bottom: 3rem;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
   }
 
   .portrait-placeholder {
     flex-shrink: 0;
-    width: 88px;
-    height: 88px;
-    border-radius: 20px;
+    width: 96px;
+    height: 96px;
+    border-radius: 22px;
     background: linear-gradient(135deg, var(--color-accent), #D97706);
     display: flex;
     align-items: center;
@@ -125,16 +230,39 @@ import Base from '../../layouts/Base.astro';
     color: white;
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     letter-spacing: 0.02em;
     box-shadow: 0 4px 20px var(--color-accent-glow);
   }
 
-  .intro-text .lead {
-    font-size: 1.15rem;
-    line-height: 1.75;
-    color: var(--color-text-soft);
+  .hero-name {
+    font-size: 1.6rem;
+    margin: 0 0 0.25rem;
+    font-weight: 700;
+  }
+
+  .hero-title {
+    font-size: 1.05rem;
+    color: var(--color-accent);
+    font-weight: 500;
+    margin: 0 0 0.35rem;
+  }
+
+  .hero-location {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    color: var(--color-muted);
     margin: 0;
+  }
+
+  /* Grid layout */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 2.5rem;
+    margin-bottom: 3rem;
   }
 
   .about-section {
@@ -149,12 +277,16 @@ import Base from '../../layouts/Base.astro';
     line-height: 1.8;
     font-size: 1.02rem;
   }
+  .about-section strong {
+    color: var(--color-text);
+    font-weight: 600;
+  }
 
   .what-list {
     list-style: none;
     padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    display: flex;
+    flex-direction: column;
     gap: 0.75rem;
   }
 
@@ -176,12 +308,104 @@ import Base from '../../layouts/Base.astro';
 
   .what-icon {
     color: var(--color-accent);
-    font-size: 0.85rem;
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  /* Sidebar */
+  .sidebar-card {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .sidebar-card h3 {
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+    margin: 0 0 1rem;
+    font-family: var(--font-body);
+  }
+
+  .steckbrief {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.4rem 1rem;
+    font-size: 0.9rem;
+  }
+  .steckbrief dt {
+    color: var(--color-muted);
+    font-weight: 400;
+  }
+  .steckbrief dd {
+    color: var(--color-text);
+    font-weight: 500;
+    margin: 0;
+  }
+  .steckbrief dd a {
+    font-weight: 500;
+  }
+
+  .tech-tags {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+  .tech-tags span {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--color-muted);
+    background: var(--color-bg-alt);
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    transition: all var(--transition);
+  }
+  .tech-tags span:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .project-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .project-list li a {
+    display: flex;
+    flex-direction: column;
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition);
+    text-decoration: none;
+    color: var(--color-text);
+  }
+  .project-list li a:hover {
+    background: var(--color-bg-alt);
+    transform: translateX(4px);
+  }
+  .project-list li a strong {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .project-list li a span {
+    font-size: 0.8rem;
+    color: var(--color-muted);
+  }
+
+  /* Contact */
+  .contact-section h2 {
+    margin-top: 0;
   }
 
   .contact-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
   }
 
@@ -234,8 +458,20 @@ import Base from '../../layouts/Base.astro';
     font-weight: 500;
   }
 
+  @media (max-width: 1024px) {
+    .about-grid { grid-template-columns: 1fr 300px; gap: 2rem; }
+  }
+
+  @media (max-width: 768px) {
+    .about-grid { grid-template-columns: 1fr; }
+    .about-sidebar { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .sidebar-card { margin-bottom: 0; }
+    .contact-cards { grid-template-columns: 1fr 1fr; }
+  }
+
   @media (max-width: 640px) {
-    .about-intro { flex-direction: column; gap: 1.25rem; }
+    .about-hero { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .about-sidebar { grid-template-columns: 1fr; }
     .contact-cards { grid-template-columns: 1fr; }
   }
 </style>
