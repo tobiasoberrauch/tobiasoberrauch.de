@@ -34,15 +34,15 @@ export default function HeroCanvas() {
     const w = () => canvas.width / window.devicePixelRatio;
     const h = () => canvas.height / window.devicePixelRatio;
 
-    // Create particles
-    const count = Math.min(Math.floor((w() * h()) / 6000), 120);
+    // More particles, bigger, denser
+    const count = Math.min(Math.floor((w() * h()) / 3500), 200);
     particlesRef.current = Array.from({ length: count }, () => ({
       x: Math.random() * w(),
       y: Math.random() * h(),
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      radius: Math.random() * 2 + 1,
-      opacity: Math.random() * 0.5 + 0.2,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+      radius: Math.random() * 3.5 + 1.5,
+      opacity: Math.random() * 0.6 + 0.3,
     }));
 
     const handleMouse = (e: MouseEvent) => {
@@ -69,66 +69,68 @@ export default function HeroCanvas() {
         if (p.x < 0 || p.x > w()) p.vx *= -1;
         if (p.y < 0 || p.y > h()) p.vy *= -1;
 
-        // Mouse attraction
+        // Mouse attraction — stronger
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 150) {
-          p.vx += dx * 0.0003;
-          p.vy += dy * 0.0003;
+        if (dist < 200) {
+          p.vx += dx * 0.0005;
+          p.vy += dy * 0.0005;
         }
 
         // Damping
-        p.vx *= 0.999;
-        p.vy *= 0.999;
+        p.vx *= 0.998;
+        p.vy *= 0.998;
       }
 
-      // Draw connections
-      const connectionDist = 140;
+      // Draw connections — longer range, thicker, stronger
+      const connectionDist = 180;
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < connectionDist) {
-            const alpha = (1 - dist / connectionDist) * 0.15;
+            const alpha = (1 - dist / connectionDist) * 0.35;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
             ctx.strokeStyle = `rgba(180, 83, 9, ${alpha})`;
-            ctx.lineWidth = 0.8;
+            ctx.lineWidth = 1.2;
             ctx.stroke();
           }
         }
       }
 
-      // Draw particles
+      // Draw particles — bigger, bolder
       for (const p of particles) {
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        const glow = dist < 120 ? 1.5 : 1;
+        const glow = dist < 160 ? 1.8 : 1;
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius * glow, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(180, 83, 9, ${p.opacity * glow})`;
         ctx.fill();
 
-        if (dist < 120) {
+        // Glow ring on hover proximity
+        if (dist < 160) {
           ctx.beginPath();
-          ctx.arc(p.x, p.y, p.radius * 3, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(180, 83, 9, ${0.05})`;
+          ctx.arc(p.x, p.y, p.radius * 4, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(180, 83, 9, 0.08)`;
           ctx.fill();
         }
       }
 
-      // Mouse glow
+      // Mouse glow — bigger, brighter
       if (mouse.x > 0 && mouse.y > 0) {
-        const grad = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 80);
-        grad.addColorStop(0, 'rgba(180, 83, 9, 0.06)');
+        const grad = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 140);
+        grad.addColorStop(0, 'rgba(180, 83, 9, 0.12)');
+        grad.addColorStop(0.5, 'rgba(180, 83, 9, 0.04)');
         grad.addColorStop(1, 'rgba(180, 83, 9, 0)');
         ctx.fillStyle = grad;
-        ctx.fillRect(mouse.x - 80, mouse.y - 80, 160, 160);
+        ctx.fillRect(mouse.x - 140, mouse.y - 140, 280, 280);
       }
 
       rafRef.current = requestAnimationFrame(draw);
@@ -153,7 +155,6 @@ export default function HeroCanvas() {
         width: '100%',
         height: '100%',
         pointerEvents: 'auto',
-        opacity: 0.9,
       }}
     />
   );

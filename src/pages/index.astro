@@ -42,6 +42,10 @@ import WaveSection from '../components/WaveSection';
         </a>
       </div>
     </div>
+    <div class="scroll-hint reveal reveal-delay-6">
+      <span>Mehr entdecken</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+    </div>
   </section>
 
   <div class="wave-divider">
@@ -305,6 +309,30 @@ import WaveSection from '../components/WaveSection';
   }
 
   .hero-links { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-muted);
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    z-index: 1;
+  }
+  .scroll-hint svg {
+    animation: bounceDown 2s ease-in-out infinite;
+  }
+
+  @keyframes bounceDown {
+    0%, 100% { transform: translateY(0); opacity: 0.5; }
+    50% { transform: translateY(8px); opacity: 1; }
+  }
 
   .hero-social {
     display: flex;
