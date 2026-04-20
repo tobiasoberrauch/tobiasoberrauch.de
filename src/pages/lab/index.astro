@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ForceGraph from '../../components/ForceGraph';
 ---
 
 <Base title="Lab" description="Prototypen, Visualisierungen und interaktive Experimente">
@@ -7,56 +8,114 @@ import Base from '../../layouts/Base.astro';
     <div class="page-badge reveal reveal-delay-1">Werkstatt</div>
     <h1 class="reveal reveal-delay-2">Lab</h1>
     <p class="page-intro reveal reveal-delay-3">
-      Hier entstehen Prototypen, interaktive Visualisierungen, Diagramme und Experimente.
+      Hier entstehen Prototypen, interaktive Visualisierungen und Experimente.
       Alles, was ich ausprobiere und zeigen möchte.
     </p>
   </section>
 
-  <section class="experiments">
-    <div class="experiment reveal reveal-delay-3">
-      <div class="exp-header">
-        <div class="exp-number">01</div>
-        <div class="exp-tag coming">Demnächst</div>
-      </div>
-      <h2>Interaktive Visualisierungen</h2>
-      <p>D3.js-Charts, Netzwerk-Graphen und datengetriebene Darstellungen.</p>
-      <div class="exp-tech">
-        <span>D3.js</span>
-        <span>React</span>
-        <span>SVG</span>
-      </div>
+  <!-- Live Demo: Force Graph -->
+  <section class="demo-section scroll-reveal">
+    <div class="demo-header">
+      <div class="demo-badge live">Live Demo</div>
+      <h2>Wissens-Netzwerk Hochbegabung</h2>
+      <p>Ein interaktiver Force-Graph, der die Zusammenhänge rund um Hochbegabung visualisiert. Ziehe die Knoten mit der Maus.</p>
     </div>
-
-    <div class="experiment reveal reveal-delay-4">
-      <div class="exp-header">
-        <div class="exp-number">02</div>
-        <div class="exp-tag coming">Demnächst</div>
-      </div>
-      <h2>Prototypen</h2>
-      <p>Kleine Apps und Tools, die ich für verschiedene Zwecke baue — von KI-Experimenten bis Alltagshelfer.</p>
-      <div class="exp-tech">
-        <span>Astro</span>
-        <span>TypeScript</span>
-        <span>APIs</span>
-      </div>
+    <div class="demo-container">
+      <ForceGraph client:visible />
     </div>
+  </section>
 
-    <div class="experiment reveal reveal-delay-5">
-      <div class="exp-header">
-        <div class="exp-number">03</div>
-        <div class="exp-tag coming">Demnächst</div>
+  <!-- Experiments -->
+  <section class="experiments-section">
+    <h2 class="section-heading scroll-reveal">
+      <span class="heading-line"></span>
+      Experimente
+    </h2>
+
+    <div class="experiments">
+      <div class="experiment scroll-reveal">
+        <div class="exp-visual">
+          <svg viewBox="0 0 120 80" fill="none">
+            <rect x="10" y="10" width="100" height="60" rx="6" stroke="#B45309" stroke-width="0.8" opacity="0.2"/>
+            <polyline points="20,55 35,40 50,48 65,25 80,35 95,18 100,22" stroke="#B45309" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.6">
+              <animate attributeName="stroke-dasharray" from="0 200" to="200 0" dur="2s" fill="freeze"/>
+            </polyline>
+            <polyline points="20,58 40,50 60,52 80,42 100,45" stroke="#4D7C6A" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.4">
+              <animate attributeName="stroke-dasharray" from="0 200" to="200 0" dur="2.5s" fill="freeze"/>
+            </polyline>
+            <circle cx="65" cy="25" r="3" fill="#B45309" opacity="0.7">
+              <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite"/>
+            </circle>
+          </svg>
+        </div>
+        <div class="exp-content">
+          <div class="exp-meta">
+            <span class="exp-number">01</span>
+            <span class="exp-tag coming">Demnächst</span>
+          </div>
+          <h3>Interaktive D3.js-Charts</h3>
+          <p>Animierte Datenvisualisierungen zu Hochbegabung-Statistiken in Baden-Württemberg.</p>
+          <div class="exp-tech">
+            <span>D3.js</span><span>React</span><span>SVG</span>
+          </div>
+        </div>
       </div>
-      <h2>Diagramme & Grafiken</h2>
-      <p>Technische Architektur-Diagramme, Flowcharts und Infografiken zu Themen, die mich bewegen.</p>
-      <div class="exp-tech">
-        <span>Mermaid</span>
-        <span>Canvas</span>
-        <span>CSS</span>
+
+      <div class="experiment scroll-reveal">
+        <div class="exp-visual">
+          <svg viewBox="0 0 120 80" fill="none">
+            <rect x="15" y="15" width="35" height="50" rx="4" stroke="#D97706" stroke-width="1" opacity="0.3"/>
+            <rect x="60" y="10" width="45" height="25" rx="4" stroke="#4D7C6A" stroke-width="1" opacity="0.3"/>
+            <rect x="60" y="42" width="45" height="25" rx="4" stroke="#92400E" stroke-width="1" opacity="0.3"/>
+            <line x1="50" y1="35" x2="60" y2="22" stroke="#78716C" stroke-width="0.8" opacity="0.3"/>
+            <line x1="50" y1="40" x2="60" y2="54" stroke="#78716C" stroke-width="0.8" opacity="0.3"/>
+            <circle cx="32" cy="30" r="8" fill="#D97706" opacity="0.1"/>
+            <circle cx="32" cy="30" r="3" fill="#D97706" opacity="0.4"/>
+          </svg>
+        </div>
+        <div class="exp-content">
+          <div class="exp-meta">
+            <span class="exp-number">02</span>
+            <span class="exp-tag coming">Demnächst</span>
+          </div>
+          <h3>KI-Prototypen</h3>
+          <p>Kleine intelligente Tools — vom Chatbot bis zum automatischen Dokumentenversteher.</p>
+          <div class="exp-tech">
+            <span>TypeScript</span><span>Claude API</span><span>Astro</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="experiment scroll-reveal">
+        <div class="exp-visual">
+          <svg viewBox="0 0 120 80" fill="none">
+            <circle cx="40" cy="40" r="20" stroke="#4D7C6A" stroke-width="1" opacity="0.2"/>
+            <circle cx="80" cy="35" r="15" stroke="#B45309" stroke-width="1" opacity="0.2"/>
+            <circle cx="60" cy="55" r="12" stroke="#D97706" stroke-width="1" opacity="0.2"/>
+            <line x1="40" y1="40" x2="80" y2="35" stroke="#78716C" stroke-width="0.5" opacity="0.3"/>
+            <line x1="40" y1="40" x2="60" y2="55" stroke="#78716C" stroke-width="0.5" opacity="0.3"/>
+            <line x1="80" y1="35" x2="60" y2="55" stroke="#78716C" stroke-width="0.5" opacity="0.3"/>
+            <circle cx="40" cy="40" r="4" fill="#4D7C6A" opacity="0.5"/>
+            <circle cx="80" cy="35" r="3" fill="#B45309" opacity="0.5"/>
+            <circle cx="60" cy="55" r="3" fill="#D97706" opacity="0.5"/>
+          </svg>
+        </div>
+        <div class="exp-content">
+          <div class="exp-meta">
+            <span class="exp-number">03</span>
+            <span class="exp-tag coming">Demnächst</span>
+          </div>
+          <h3>Architektur-Diagramme</h3>
+          <p>Interaktive System-Visualisierungen, Flowcharts und Infografiken zu meinen Projekten.</p>
+          <div class="exp-tech">
+            <span>Mermaid</span><span>Canvas</span><span>CSS</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="cta reveal reveal-delay-6">
+  <section class="cta scroll-reveal">
     <div class="cta-inner">
       <p>Du hast eine Idee für ein Experiment?</p>
       <a href="mailto:tobias.oberrauch@gmx.de">Schreib mir →</a>
@@ -65,10 +124,7 @@ import Base from '../../layouts/Base.astro';
 </Base>
 
 <style>
-  .page-header {
-    margin-bottom: 3rem;
-  }
-
+  .page-header { margin-bottom: 2.5rem; }
   .page-badge {
     display: inline-block;
     font-size: 0.78rem;
@@ -81,12 +137,63 @@ import Base from '../../layouts/Base.astro';
     border-radius: 99px;
     margin-bottom: 1.25rem;
   }
-
   .page-intro {
     color: var(--color-muted);
     font-size: 1.1rem;
     max-width: 560px;
     line-height: 1.7;
+  }
+
+  /* Demo section */
+  .demo-section {
+    margin-bottom: 4rem;
+  }
+  .demo-header {
+    margin-bottom: 1.5rem;
+  }
+  .demo-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.8rem;
+    border-radius: 99px;
+    margin-bottom: 0.75rem;
+  }
+  .demo-badge.live {
+    background: #D5EDE2;
+    color: #15603D;
+    animation: pulse-subtle 3s ease-in-out infinite;
+  }
+  .demo-header h2 {
+    font-size: 1.5rem;
+    margin: 0 0 0.5rem;
+  }
+  .demo-header p {
+    color: var(--color-muted);
+    font-size: 0.95rem;
+    max-width: 500px;
+  }
+  .demo-container {
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  /* Experiments */
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+  }
+  .heading-line {
+    display: block;
+    width: 32px;
+    height: 2px;
+    background: var(--color-accent);
+    border-radius: 2px;
   }
 
   .experiments {
@@ -97,15 +204,17 @@ import Base from '../../layouts/Base.astro';
   }
 
   .experiment {
-    background: rgba(255, 255, 255, 0.5);
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    background: rgba(255,255,255,0.5);
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
-    padding: 2rem;
+    padding: 1.75rem;
     transition: all var(--transition);
     position: relative;
     overflow: hidden;
   }
-
   .experiment::after {
     content: '';
     position: absolute;
@@ -118,39 +227,44 @@ import Base from '../../layouts/Base.astro';
     transform-origin: left;
     transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   }
-
   .experiment:hover {
     border-color: var(--color-border-hover);
     box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
+    transform: translateY(-3px);
   }
-  .experiment:hover::after {
-    transform: scaleX(1);
-  }
+  .experiment:hover::after { transform: scaleX(1); }
 
-  .exp-header {
+  .exp-visual {
+    flex-shrink: 0;
+    width: 120px;
+    height: 80px;
+    transition: transform 0.4s ease;
+  }
+  .experiment:hover .exp-visual {
+    transform: scale(1.05);
+  }
+  .exp-visual svg { width: 100%; height: 100%; }
+
+  .exp-content { flex: 1; }
+  .exp-meta {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
   }
-
   .exp-number {
     font-family: var(--font-display);
-    font-size: 2rem;
+    font-size: 1.4rem;
     font-weight: 300;
     color: var(--color-border-hover);
-    line-height: 1;
-    letter-spacing: -0.02em;
     font-variation-settings: 'opsz' 72;
   }
-
   .exp-tag {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    padding: 0.25rem 0.7rem;
+    padding: 0.2rem 0.65rem;
     border-radius: 99px;
   }
   .exp-tag.coming {
@@ -158,42 +272,34 @@ import Base from '../../layouts/Base.astro';
     color: var(--color-muted);
     border: 1px solid var(--color-border);
   }
-  .exp-tag.live {
-    background: #D5EDE2;
-    color: #15603D;
-  }
 
-  .experiment h2 {
-    font-size: 1.3rem;
-    margin: 0 0 0.5rem;
+  .experiment h3 {
+    font-size: 1.2rem;
+    margin: 0 0 0.4rem;
     font-weight: 600;
   }
-
   .experiment p {
     color: var(--color-muted);
-    font-size: 0.95rem;
+    font-size: 0.93rem;
     line-height: 1.6;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.75rem;
   }
 
   .exp-tech {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.4rem;
     flex-wrap: wrap;
   }
   .exp-tech span {
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     font-weight: 500;
     color: var(--color-muted);
     background: var(--color-bg-alt);
-    padding: 0.2rem 0.65rem;
+    padding: 0.15rem 0.55rem;
     border-radius: 6px;
     border: 1px solid var(--color-border);
   }
 
-  .cta {
-    margin-top: 1rem;
-  }
   .cta-inner {
     background: var(--color-bg-alt);
     border: 1px dashed var(--color-border);
@@ -201,13 +307,11 @@ import Base from '../../layouts/Base.astro';
     padding: 2rem;
     text-align: center;
   }
-  .cta-inner p {
-    color: var(--color-muted);
-    margin-bottom: 0.5rem;
-    font-size: 1rem;
-  }
-  .cta-inner a {
-    font-weight: 500;
-    font-size: 1rem;
+  .cta-inner p { color: var(--color-muted); margin-bottom: 0.5rem; }
+  .cta-inner a { font-weight: 500; }
+
+  @media (max-width: 640px) {
+    .experiment { flex-direction: column; align-items: flex-start; }
+    .exp-visual { width: 100%; max-width: 160px; }
   }
 </style>

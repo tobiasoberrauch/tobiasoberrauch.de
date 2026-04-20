@@ -69,7 +69,11 @@ const nav = [
     </div>
   </footer>
 
+  <!-- Grain overlay -->
+  <div class="grain" aria-hidden="true"></div>
+
   <script>
+    // Mobile nav
     const toggle = document.querySelector('.nav-toggle');
     const nav = document.querySelector('.site-header nav');
     if (toggle && nav) {
@@ -79,6 +83,20 @@ const nav = [
         toggle.setAttribute('aria-expanded', String(open));
       });
     }
+
+    // Scroll reveal
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('revealed');
+            obs.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+    );
+    document.querySelectorAll('.scroll-reveal').forEach((el) => obs.observe(el));
   </script>
 </body>
 </html>
@@ -254,6 +272,31 @@ const nav = [
     font-size: 0.85rem;
   }
   .footer-right a:hover { color: var(--color-accent); }
+
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+  }
+
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .scroll-reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .scroll-reveal.sr-delay-1 { transition-delay: 0.1s; }
+  .scroll-reveal.sr-delay-2 { transition-delay: 0.2s; }
+  .scroll-reveal.sr-delay-3 { transition-delay: 0.3s; }
+  .scroll-reveal.sr-delay-4 { transition-delay: 0.4s; }
 
   @media (max-width: 640px) {
     .logo-text { display: none; }
