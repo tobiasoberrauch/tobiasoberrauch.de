@@ -35,7 +35,7 @@ export default function HeroCanvas() {
     const h = () => canvas.height / window.devicePixelRatio;
 
     // Create particles
-    const count = Math.min(Math.floor((w() * h()) / 8000), 80);
+    const count = Math.min(Math.floor((w() * h()) / 6000), 120);
     particlesRef.current = Array.from({ length: count }, () => ({
       x: Math.random() * w(),
       y: Math.random() * h(),
@@ -84,7 +84,7 @@ export default function HeroCanvas() {
       }
 
       // Draw connections
-      const connectionDist = 120;
+      const connectionDist = 140;
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
