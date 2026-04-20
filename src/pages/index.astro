@@ -216,10 +216,11 @@ import WaveSection from '../components/WaveSection';
   /* Full-bleed hero */
   .hero {
     position: relative;
-    min-height: calc(100vh - 64px);
+    width: 100vw;
+    height: 100vh;
     display: flex;
     align-items: center;
-    margin: 0 calc(var(--padding-x) * -1);
+    margin: -64px calc(var(--padding-x) * -1) 0;
     padding: 5rem var(--padding-x) 4rem;
     overflow: hidden;
   }
@@ -644,7 +645,7 @@ import WaveSection from '../components/WaveSection';
 
   /* Tablet portrait */
   @media (max-width: 768px) {
-    .hero { min-height: calc(100vh - 64px); padding: 3.5rem var(--padding-x) 3rem; }
+    .hero { height: 100vh; padding: 3.5rem var(--padding-x) 3rem; }
     .profile-grid { grid-template-columns: 1fr; gap: 2rem; }
     .focus-grid { grid-template-columns: 1fr 1fr; }
     .cards { grid-template-columns: 1fr 1fr; }
@@ -653,7 +654,7 @@ import WaveSection from '../components/WaveSection';
 
   /* Mobile */
   @media (max-width: 640px) {
-    .hero { min-height: calc(100svh - 64px); padding: 2.5rem var(--padding-x) 2rem; }
+    .hero { height: 100svh; padding: 2.5rem var(--padding-x) 2rem; }
     .hero h1 { font-size: 2.6rem; }
     .hero-intro { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
     .focus-grid { grid-template-columns: 1fr; }
