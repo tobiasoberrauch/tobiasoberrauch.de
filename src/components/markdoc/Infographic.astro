@@ -1,0 +1,43 @@
+---
+interface Props {
+  src: string;
+  alt?: string;
+  caption?: string;
+}
+const { src, alt, caption } = Astro.props;
+---
+
+<figure class="article-infographic">
+  <a href={src} target="_blank" rel="noopener">
+    <img src={src} alt={alt || caption || 'Infografik'} loading="lazy" />
+  </a>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .article-infographic {
+    margin: 1.5rem 0;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    transition: box-shadow var(--transition);
+  }
+  .article-infographic:hover {
+    box-shadow: var(--shadow-md);
+  }
+  .article-infographic a {
+    display: block;
+  }
+  .article-infographic img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .article-infographic figcaption {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    background: var(--color-bg-alt);
+    border-top: 1px solid var(--color-border);
+  }
+</style>

@@ -1,0 +1,217 @@
+---
+import { t } from '../i18n/translations';
+import { getPillarPath, type Locale } from '../i18n/config';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const p = t[locale].pillars;
+const thesis = t[locale].thesis;
+---
+
+<section id="pillars" class="pillars-section">
+  <div class="pillars-intro scroll-reveal">
+    <span class="section-eyebrow">{thesis.title}</span>
+    <p class="thesis-body">{thesis.body}</p>
+  </div>
+
+  <h2 class="section-label-center scroll-reveal">{p.sectionLabel}</h2>
+  <p class="pillars-subintro scroll-reveal">{p.sectionIntro}</p>
+
+  <div class="pillars-grid">
+    <a href={getPillarPath(locale, 'writing')} class="pillar-card scroll-reveal">
+      <div class="pillar-mark">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <path d="M14 2v6h6"/>
+          <path d="M8 13h8M8 17h6"/>
+        </svg>
+      </div>
+      <div class="pillar-num">I</div>
+      <h3>{p.writing.name}</h3>
+      <p class="pillar-subtitle">{p.writing.subtitle}</p>
+      <p class="pillar-teaser">{p.writing.teaser}</p>
+      <span class="pillar-cta">{p.writing.cta} &rarr;</span>
+    </a>
+
+    <a href={getPillarPath(locale, 'speaking')} class="pillar-card scroll-reveal sr-delay-1">
+      <div class="pillar-mark">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1018 0 9 9 0 00-18 0z"/>
+          <path d="M8 10c1 2 7 2 8 0"/>
+          <path d="M9 14c.8 1.2 5.2 1.2 6 0"/>
+        </svg>
+      </div>
+      <div class="pillar-num">II</div>
+      <h3>{p.speaking.name}</h3>
+      <p class="pillar-subtitle">{p.speaking.subtitle}</p>
+      <p class="pillar-teaser">{p.speaking.teaser}</p>
+      <span class="pillar-cta">{p.speaking.cta} &rarr;</span>
+    </a>
+
+    <a href={getPillarPath(locale, 'working')} class="pillar-card scroll-reveal sr-delay-2">
+      <div class="pillar-mark">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 1v6m0 10v6m11-11h-6M7 12H1m17.07-7.07l-4.24 4.24M9.17 14.83l-4.24 4.24m0-14.14l4.24 4.24m5.66 5.66l4.24 4.24"/>
+        </svg>
+      </div>
+      <div class="pillar-num">III</div>
+      <h3>{p.working.name}</h3>
+      <p class="pillar-subtitle">{p.working.subtitle}</p>
+      <p class="pillar-teaser">{p.working.teaser}</p>
+      <span class="pillar-cta">{p.working.cta} &rarr;</span>
+    </a>
+  </div>
+</section>
+
+<style>
+  .pillars-section {
+    padding: 5rem 0 3rem;
+    scroll-margin-top: 80px;
+  }
+  .pillars-intro {
+    max-width: 720px;
+    margin: 0 auto 3.5rem;
+    text-align: center;
+  }
+  .section-eyebrow {
+    display: inline-block;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-accent);
+    margin-bottom: 0.75rem;
+  }
+  .thesis-body {
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+    line-height: 1.6;
+    color: var(--color-text);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .section-label-center {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 600;
+    text-align: center;
+    margin: 0 0 0.75rem;
+    letter-spacing: -0.02em;
+  }
+  .pillars-subintro {
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 620px;
+    margin: 0 auto 3rem;
+  }
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  .pillar-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 2.25rem 2rem 2rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    color: var(--color-text);
+    text-decoration: none;
+    transition: all var(--transition);
+    overflow: hidden;
+  }
+  .pillar-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-secondary));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .pillar-card:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+  .pillar-card:hover::before {
+    transform: scaleX(1);
+  }
+  .pillar-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    background: var(--color-accent-light);
+    color: var(--color-accent);
+    border-radius: 14px;
+    margin-bottom: 1.25rem;
+    transition: all var(--transition);
+  }
+  .pillar-card:hover .pillar-mark {
+    background: var(--color-accent);
+    color: white;
+  }
+  .pillar-num {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.75rem;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-border-hover);
+    letter-spacing: 0.05em;
+  }
+  .pillar-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.65rem;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.35rem;
+  }
+  .pillar-subtitle {
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin: 0 0 1rem;
+  }
+  .pillar-teaser {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: var(--color-muted);
+    margin: 0 0 1.25rem;
+    flex: 1;
+  }
+  .pillar-cta {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-accent);
+    transition: transform var(--transition);
+  }
+  .pillar-card:hover .pillar-cta {
+    transform: translateX(4px);
+  }
+  @media (max-width: 1024px) {
+    .pillars-grid { grid-template-columns: 1fr; gap: 1.25rem; }
+  }
+  @media (max-width: 640px) {
+    .pillars-section { padding: 3rem 0 2rem; }
+    .pillar-card { padding: 1.75rem; }
+    .pillar-card h3 { font-size: 1.45rem; }
+  }
+</style>

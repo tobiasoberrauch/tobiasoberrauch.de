@@ -1,0 +1,50 @@
+---
+interface Props {
+  src: string;
+  title?: string;
+}
+const { src, title } = Astro.props;
+const isExternal = src.startsWith('http');
+---
+
+<figure class="article-video">
+  {isExternal ? (
+    <iframe
+      src={src}
+      title={title || 'Video'}
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen
+      loading="lazy"
+    />
+  ) : (
+    <video controls preload="none">
+      <source src={src} type="video/mp4" />
+    </video>
+  )}
+  {title && <figcaption>{title}</figcaption>}
+</figure>
+
+<style>
+  .article-video {
+    margin: 1.5rem 0;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+  }
+  .article-video iframe {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border: none;
+  }
+  .article-video video {
+    width: 100%;
+    display: block;
+  }
+  .article-video figcaption {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    background: var(--color-bg-alt);
+    border-top: 1px solid var(--color-border);
+  }
+</style>

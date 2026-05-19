@@ -1,0 +1,12 @@
+---
+import Base from '../../layouts/Base.astro';
+import GiftednessBody from '../../components/GiftednessBody.astro';
+import { t } from '../../i18n/translations';
+
+const locale = 'en' as const;
+const tr = t[locale];
+---
+
+<Base title={tr.pages.giftedness.title} description={tr.pages.giftedness.lead} locale={locale}>
+  <GiftednessBody locale={locale} />
+</Base>

@@ -1,0 +1,97 @@
+---
+import {
+  locales,
+  localeShortLabels,
+  localeLabels,
+  defaultLocale,
+  getLocalePath,
+  getPillarPath,
+  getExtraPath,
+  slugToPillar,
+  slugToExtra,
+  type Locale,
+} from '../i18n/config';
+
+interface Props {
+  current: Locale;
+}
+
+const { current } = Astro.props;
+const pathname = Astro.url.pathname;
+
+function stripLocale(path: string): string {
+  const match = path.match(/^\/(en|la|grc)(\/.*)?$/);
+  if (match) return match[2] || '/';
+  return path;
+}
+
+function urlFor(target: Locale): string {
+  const stripped = stripLocale(pathname).replace(/^\/+|\/+$/g, '');
+  if (!stripped) return getLocalePath(target);
+
+  // First segment carries the route key
+  const [first] = stripped.split('/');
+
+  if (slugToPillar[first]) {
+    return getPillarPath(target, slugToPillar[first]);
+  }
+  if (slugToExtra[first]) {
+    // For article pages (e.g. hochbegabung/<slug>), keep DE for non-default locales
+    // because article MDX is German-only — but link to localized landing page.
+    return getExtraPath(target, slugToExtra[first]);
+  }
+  return getLocalePath(target, stripped);
+}
+---
+
+<div class="lang-switcher" role="navigation" aria-label="Language">
+  {locales.map((loc) => (
+    <a
+      href={urlFor(loc)}
+      class:list={['lang-link', { active: loc === current }]}
+      aria-current={loc === current ? 'true' : undefined}
+      hreflang={loc}
+      title={localeLabels[loc]}
+    >
+      {localeShortLabels[loc]}
+    </a>
+  ))}
+</div>
+
+<style>
+  .lang-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.2rem;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    backdrop-filter: blur(8px);
+  }
+  .lang-link {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--color-muted);
+    padding: 0.3rem 0.5rem;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: all var(--transition);
+    line-height: 1;
+  }
+  .lang-link:hover {
+    color: var(--color-text);
+    background: var(--color-bg-alt);
+  }
+  .lang-link.active {
+    color: var(--color-accent);
+    background: var(--color-accent-light);
+  }
+  @media (max-width: 640px) {
+    .lang-switcher {
+      align-self: flex-start;
+      margin-top: 0.5rem;
+    }
+  }
+</style>

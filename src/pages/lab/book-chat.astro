@@ -1,0 +1,105 @@
+---
+import Base from '../../layouts/Base.astro';
+import BookChat from '../../components/BookChat';
+---
+
+<Base
+  title="Buch-Assistent | Tobias Oberrauch"
+  description="AI-gestützter Assistent für Buchanalyse und Fragen"
+>
+  <main class="book-chat-page">
+    <section class="hero">
+      <h1>Buch-Assistent</h1>
+      <p>
+        Stelle Fragen zu Büchern und erhalte KI-gestützte Antworten basierend auf dem tatsächlichen Buchinhalt.
+      </p>
+    </section>
+
+    <section class="chat-section">
+      <BookChat
+        client:load
+        apiUrl="https://api.tobiasoberrauch.de"
+        book="Das passende Leben"
+        title="Das passende Leben - Remo H. Largo"
+        placeholder="z.B. Was sagt das Buch über Individualität?"
+      />
+    </section>
+
+    <section class="info">
+      <h2>Wie funktioniert das?</h2>
+      <div class="features">
+        <div class="feature">
+          <h3>📚 OCR-Erfassung</h3>
+          <p>Buchseiten werden automatisch erfasst und der Text mittels OCR extrahiert.</p>
+        </div>
+        <div class="feature">
+          <h3>🔍 Semantische Suche</h3>
+          <p>Fragen werden mit Vektor-Embeddings verarbeitet, um relevante Passagen zu finden.</p>
+        </div>
+        <div class="feature">
+          <h3>🤖 KI-Agent</h3>
+          <p>Ein intelligenter Agent nutzt verschiedene Tools, um komplexe Fragen zu beantworten.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <style>
+    .book-chat-page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--color-text-muted, #666);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .chat-section {
+      margin-bottom: 4rem;
+    }
+
+    .info {
+      text-align: center;
+    }
+
+    .info h2 {
+      margin-bottom: 2rem;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature {
+      padding: 1.5rem;
+      background: var(--color-bg-secondary, #f5f5f5);
+      border-radius: 12px;
+    }
+
+    .feature h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature p {
+      color: var(--color-text-muted, #666);
+      line-height: 1.6;
+    }
+  </style>
+</Base>

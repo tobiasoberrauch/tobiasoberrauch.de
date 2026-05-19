@@ -1,0 +1,12 @@
+---
+import Base from '../../layouts/Base.astro';
+import AboutBody from '../../components/AboutBody.astro';
+import { t } from '../../i18n/translations';
+
+const locale = 'grc' as const;
+const tr = t[locale];
+---
+
+<Base title={tr.pages.about.title} description={tr.pages.about.role} locale={locale}>
+  <AboutBody locale={locale} />
+</Base>

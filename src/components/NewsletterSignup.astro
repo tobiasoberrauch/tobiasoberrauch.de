@@ -1,0 +1,185 @@
+---
+import type { Locale } from '../i18n/config';
+import { t } from '../i18n/translations';
+
+interface Props {
+  locale: Locale;
+  variant?: 'default' | 'inline' | 'panel';
+}
+
+const { locale, variant = 'default' } = Astro.props;
+const n = t[locale].newsletter;
+---
+
+<section class:list={['newsletter', `newsletter--${variant}`]} aria-labelledby={`newsletter-${locale}`}>
+  <div class="newsletter-inner">
+    <div class="newsletter-text">
+      <span class="newsletter-eyebrow">{n.eyebrow}</span>
+      <h2 id={`newsletter-${locale}`} class="newsletter-title">{n.title}</h2>
+      <p class="newsletter-body">{n.body}</p>
+    </div>
+    <form
+      class="newsletter-form"
+      action="#"
+      method="post"
+      data-locale={locale}
+      aria-label={n.title}
+    >
+      <label class="visually-hidden" for={`newsletter-email-${locale}`}>{n.emailLabel}</label>
+      <input
+        id={`newsletter-email-${locale}`}
+        name="email"
+        type="email"
+        required
+        autocomplete="email"
+        spellcheck="false"
+        placeholder={n.emailPlaceholder}
+      />
+      <button type="submit">{n.submit}</button>
+      <p class="newsletter-meta">{n.frequency}</p>
+      <p class="newsletter-consent">{n.consent}</p>
+    </form>
+  </div>
+</section>
+
+<style>
+  .newsletter {
+    width: 100%;
+    margin: 3rem 0;
+  }
+  .newsletter--inline {
+    margin: 1.5rem 0;
+  }
+  .newsletter-inner {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 2.5rem;
+    align-items: center;
+    padding: 2.5rem;
+    background: linear-gradient(135deg, rgba(254, 243, 199, 0.55), rgba(255, 255, 255, 0.5));
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+  }
+  .newsletter--panel .newsletter-inner {
+    background: rgba(255, 255, 255, 0.65);
+  }
+  .newsletter-eyebrow {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-accent);
+    margin-bottom: 0.5rem;
+  }
+  .newsletter-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.6rem;
+  }
+  .newsletter-body {
+    color: var(--color-text-soft);
+    font-size: 1rem;
+    line-height: 1.65;
+    margin: 0;
+  }
+  .newsletter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .newsletter-form input[type='email'] {
+    appearance: none;
+    width: 100%;
+    padding: 0.85rem 1.1rem;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--color-text);
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    transition: all var(--transition);
+  }
+  .newsletter-form input[type='email']:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-glow);
+  }
+  .newsletter-form button {
+    appearance: none;
+    padding: 0.85rem 1.4rem;
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: inherit;
+    color: white;
+    background: var(--color-accent);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: 0 2px 14px var(--color-accent-glow);
+  }
+  .newsletter-form button:hover {
+    background: var(--color-accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px var(--color-accent-glow);
+  }
+  .newsletter-meta {
+    font-size: 0.78rem;
+    color: var(--color-muted);
+    margin: 0.2rem 0 0;
+  }
+  .newsletter-consent {
+    font-size: 0.7rem;
+    color: var(--color-muted);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  @media (max-width: 768px) {
+    .newsletter-inner {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      padding: 1.75rem;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('form.newsletter-form').forEach((form) => {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const f = e.target as HTMLFormElement;
+      const email = (f.querySelector('input[name=email]') as HTMLInputElement)?.value;
+      const locale = f.dataset.locale ?? 'de';
+      // Placeholder: Substack/ConvertKit hook to be wired in here.
+      const messages: Record<string, string> = {
+        de: 'Danke. Sobald die erste Ausgabe erscheint, melde ich mich.',
+        en: 'Thank you. I will reach out as soon as the first issue ships.',
+        la: 'Gratias tibi ago. Cum prima editio prodibit, te certiorem faciam.',
+        grc: 'Χάριν σοι ἔχω. Ὅταν ἡ πρώτη ἔκδοσις προβῇ, σοι ἀγγελῶ.',
+      };
+      const msg = document.createElement('p');
+      msg.className = 'newsletter-success';
+      msg.textContent = messages[locale] || messages.de;
+      msg.style.cssText = 'margin-top:0.5rem;color:var(--color-accent);font-size:0.9rem;font-weight:500;';
+      f.appendChild(msg);
+      (f.querySelector('input[name=email]') as HTMLInputElement).value = '';
+      console.info('[newsletter] subscribe placeholder', { email, locale });
+    });
+  });
+</script>

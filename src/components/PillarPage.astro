@@ -1,0 +1,181 @@
+---
+import NewsletterSignup from './NewsletterSignup.astro';
+import { t } from '../i18n/translations';
+import { getPillarPath, type Locale, type PillarKey } from '../i18n/config';
+
+interface Props {
+  locale: Locale;
+  pillar: PillarKey;
+}
+
+const { locale, pillar } = Astro.props;
+const tr = t[locale];
+const page = tr.pages[pillar];
+const pillarMeta = tr.pillars[pillar];
+
+const otherPillars: PillarKey[] = (['writing', 'speaking', 'working'] as PillarKey[]).filter(
+  (p) => p !== pillar,
+);
+---
+
+<article class="pillar-page" lang={locale === 'grc' ? 'grc' : undefined}>
+  <header class="pillar-header scroll-reveal">
+    <a href={`/${locale === 'de' ? '' : locale + '/'}`} class="back-link">&larr; {tr.nav.home}</a>
+    <span class="pillar-eyebrow">{pillarMeta.subtitle}</span>
+    <h1>{page.title}</h1>
+    <p class="lead">{page.lead}</p>
+  </header>
+
+  {pillar === 'writing' && (
+    <NewsletterSignup locale={locale} variant="panel" />
+  )}
+
+  <div class="pillar-sections">
+    {page.sections.map((s, i) => (
+      <section class="pillar-section scroll-reveal" style={`transition-delay: ${i * 0.05}s`}>
+        <h2>{s.heading}</h2>
+        <p>{s.body}</p>
+      </section>
+    ))}
+  </div>
+
+  {pillar !== 'writing' && (
+    <NewsletterSignup locale={locale} variant="default" />
+  )}
+
+  <nav class="other-pillars scroll-reveal" aria-label={tr.pillars.sectionLabel}>
+    <span class="other-pillars-label">{tr.pillars.sectionLabel}</span>
+    <div class="other-pillars-grid">
+      {otherPillars.map((p) => (
+        <a href={getPillarPath(locale, p)} class="other-pillar">
+          <span class="other-pillar-name">{tr.pillars[p].name}</span>
+          <span class="other-pillar-sub">{tr.pillars[p].subtitle}</span>
+        </a>
+      ))}
+    </div>
+  </nav>
+</article>
+
+<style>
+  .pillar-page {
+    padding: 3rem 0 2rem;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  .pillar-header {
+    margin-bottom: 3rem;
+  }
+  .back-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    transition: color var(--transition);
+  }
+  .back-link:hover {
+    color: var(--color-accent);
+  }
+  .pillar-eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-accent);
+    margin-bottom: 0.75rem;
+  }
+  .pillar-header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin: 0 0 1.25rem;
+  }
+  .lead {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+    line-height: 1.6;
+    color: var(--color-text-soft);
+    margin: 0;
+    max-width: 680px;
+  }
+  .pillar-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    margin: 3rem 0;
+  }
+  .pillar-section {
+    padding-left: 1.5rem;
+    border-left: 2px solid var(--color-border);
+  }
+  .pillar-section h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 2.2vw, 1.65rem);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.65rem;
+  }
+  .pillar-section p {
+    color: var(--color-text-soft);
+    font-size: 1.02rem;
+    line-height: 1.7;
+    margin: 0;
+  }
+  .other-pillars {
+    margin-top: 4rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--color-border);
+  }
+  .other-pillars-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-muted);
+    margin-bottom: 1rem;
+  }
+  .other-pillars-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .other-pillar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 1rem 1.25rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--color-text);
+    transition: all var(--transition);
+  }
+  .other-pillar:hover {
+    border-color: var(--color-accent);
+    transform: translateX(4px);
+    text-decoration: none;
+    color: var(--color-text);
+  }
+  .other-pillar-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+  }
+  .other-pillar-sub {
+    font-size: 0.78rem;
+    color: var(--color-muted);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  @media (max-width: 640px) {
+    .pillar-section { padding-left: 1rem; }
+    .other-pillars-grid { grid-template-columns: 1fr; }
+  }
+</style>

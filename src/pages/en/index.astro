@@ -1,0 +1,12 @@
+---
+import Base from '../../layouts/Base.astro';
+import HomeBody from '../../components/HomeBody.astro';
+import { t } from '../../i18n/translations';
+
+const locale = 'en' as const;
+const tr = t[locale];
+---
+
+<Base title="Home" description={tr.meta.siteDescription} locale={locale}>
+  <HomeBody locale={locale} />
+</Base>
