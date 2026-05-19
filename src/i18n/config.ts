@@ -1,7 +1,7 @@
 export const locales = ['de', 'en', 'la', 'grc'] as const;
 export type Locale = (typeof locales)[number];
 
-export const defaultLocale: Locale = 'de';
+export const defaultLocale: Locale = 'la';
 
 export const localeLabels: Record<Locale, string> = {
   de: 'Deutsch',
@@ -98,6 +98,6 @@ export function getExtraPath(locale: Locale, key: ExtraKey): string {
 }
 
 export function detectLocaleFromPath(pathname: string): Locale {
-  const match = pathname.match(/^\/(en|la|grc)(\/|$)/);
-  return (match?.[1] as Locale) ?? 'de';
+  const match = pathname.match(/^\/(de|en|grc)(\/|$)/);
+  return (match?.[1] as Locale) ?? 'la';
 }

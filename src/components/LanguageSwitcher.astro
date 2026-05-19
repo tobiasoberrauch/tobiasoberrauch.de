@@ -20,7 +20,7 @@ const { current } = Astro.props;
 const pathname = Astro.url.pathname;
 
 function stripLocale(path: string): string {
-  const match = path.match(/^\/(en|la|grc)(\/.*)?$/);
+  const match = path.match(/^\/(de|en|grc)(\/.*)?$/);
   if (match) return match[2] || '/';
   return path;
 }

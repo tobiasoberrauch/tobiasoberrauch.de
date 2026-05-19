@@ -1,4 +1,5 @@
 ---
+import Analytics from '@vercel/analytics/astro';
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 import { t } from '../i18n/translations';
 import {
@@ -11,6 +12,9 @@ import {
   ogLocale,
   type Locale,
 } from '../i18n/config';
+
+const openpanelClientId = import.meta.env.PUBLIC_OPENPANEL_CLIENT_ID;
+const openpanelApi = import.meta.env.PUBLIC_OPENPANEL_API ?? 'https://api.openpanel.dev';
 
 interface Props {
   title: string;
@@ -55,7 +59,7 @@ const alternates: { lang: string; href: string }[] = (
   ['de', 'en', 'la', 'grc'] as Locale[]
 ).map((loc) => {
   const stripped = currentPath
-    .replace(/^\/(en|la|grc)/, '')
+    .replace(/^\/(de|en|grc)/, '')
     .replace(/^\/+|\/+$/g, '');
   let href: string;
   if (!stripped) href = getLocalePath(loc);
@@ -168,6 +172,17 @@ const jsonLd = {
 
   <!-- JSON-LD Structured Data -->
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  {openpanelClientId && (
+    <script
+      defer
+      src="https://openpanel.dev/op1.js"
+      data-client-id={openpanelClientId}
+      data-track-screen-views="true"
+      data-track-outgoing-links="true"
+      data-api-url={openpanelApi}
+    />
+  )}
 </head>
 <body>
   <!-- Dot grid background -->
@@ -217,6 +232,9 @@ const jsonLd = {
 
   <!-- Grain overlay -->
   <div class="grain" aria-hidden="true"></div>
+
+  <Analytics />
+
 
   <script>
     // Mobile nav

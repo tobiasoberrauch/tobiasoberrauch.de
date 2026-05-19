@@ -13,8 +13,8 @@ export default defineConfig({
   site: 'https://tobiasoberrauch.de',
   output: 'static',
   i18n: {
-    defaultLocale: 'de',
-    locales: ['de', 'en', 'la', 'grc'],
+    defaultLocale: 'la',
+    locales: ['la', 'de', 'en', 'grc'],
     routing: {
       prefixDefaultLocale: false,
     },
@@ -25,11 +25,11 @@ export default defineConfig({
     react(),
     sitemap({
       i18n: {
-        defaultLocale: 'de',
+        defaultLocale: 'la',
         locales: {
+          la: 'la',
           de: 'de-DE',
           en: 'en-US',
-          la: 'la',
           grc: 'grc',
         },
       },
