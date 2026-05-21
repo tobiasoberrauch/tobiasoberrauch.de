@@ -160,26 +160,89 @@ const n = t[locale].newsletter;
 </style>
 
 <script>
+  type Lang = 'de' | 'en' | 'la' | 'grc';
+
+  const successMsg: Record<Lang, string> = {
+    de: 'Danke. Bestätige bitte deine Adresse mit der Mail, die ich dir gleich schicke.',
+    en: 'Thank you. Please confirm your address with the email you will receive shortly.',
+    la: 'Gratias tibi ago. Inscriptionem tuam epistula quae mox veniet confirma.',
+    grc: 'Χάριν σοι ἔχω. Τὴν ἐπιγραφήν σου διὰ τῆς ἐπιστολῆς ἥτις τάχα ἥξει βεβαίωσον.',
+  };
+  const alreadyMsg: Record<Lang, string> = {
+    de: 'Du stehst bereits auf der Liste. Danke.',
+    en: 'You are already on the list. Thank you.',
+    la: 'Iam in numero es. Gratias tibi ago.',
+    grc: 'Ἤδη ἐν τῷ καταλόγῳ εἶ. Χάριν σοι ἔχω.',
+  };
+  const errorMsg: Record<Lang, string> = {
+    de: 'Etwas ist schiefgegangen. Bitte später erneut versuchen.',
+    en: 'Something went wrong. Please try again later.',
+    la: 'Aliquid male evenit. Postea iterum tenta.',
+    grc: 'Σφάλμα τι ἐγένετο. Ὕστερον αὖθις πείρασον.',
+  };
+  const invalidMsg: Record<Lang, string> = {
+    de: 'Bitte eine gültige E-Mail-Adresse angeben.',
+    en: 'Please provide a valid email address.',
+    la: 'Quaeso inscriptionem electronicam validam praebe.',
+    grc: 'Ἐπιγραφὴν ἠλεκτρονικὴν ἔγκυρον δίδου.',
+  };
+
+  function pickLang(locale: string | undefined): Lang {
+    if (locale === 'de' || locale === 'en' || locale === 'la' || locale === 'grc') return locale;
+    return 'la';
+  }
+
   document.querySelectorAll('form.newsletter-form').forEach((form) => {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const f = e.target as HTMLFormElement;
-      const email = (f.querySelector('input[name=email]') as HTMLInputElement)?.value;
-      const locale = f.dataset.locale ?? 'de';
-      // Placeholder: Substack/ConvertKit hook to be wired in here.
-      const messages: Record<string, string> = {
-        de: 'Danke. Sobald die erste Ausgabe erscheint, melde ich mich.',
-        en: 'Thank you. I will reach out as soon as the first issue ships.',
-        la: 'Gratias tibi ago. Cum prima editio prodibit, te certiorem faciam.',
-        grc: 'Χάριν σοι ἔχω. Ὅταν ἡ πρώτη ἔκδοσις προβῇ, σοι ἀγγελῶ.',
+      const emailInput = f.querySelector('input[name=email]') as HTMLInputElement;
+      const button = f.querySelector('button[type=submit]') as HTMLButtonElement;
+      const email = emailInput?.value?.trim() ?? '';
+      const lang = pickLang(f.dataset.locale);
+
+      // Clear any prior status
+      f.querySelectorAll('.newsletter-status').forEach((n) => n.remove());
+
+      const showStatus = (text: string, tone: 'success' | 'error') => {
+        const msg = document.createElement('p');
+        msg.className = `newsletter-status newsletter-status--${tone}`;
+        msg.textContent = text;
+        msg.style.cssText =
+          tone === 'success'
+            ? 'margin-top:0.6rem;color:var(--color-accent);font-size:0.9rem;font-weight:500;'
+            : 'margin-top:0.6rem;color:#B91C1C;font-size:0.9rem;font-weight:500;';
+        f.appendChild(msg);
       };
-      const msg = document.createElement('p');
-      msg.className = 'newsletter-success';
-      msg.textContent = messages[locale] || messages.de;
-      msg.style.cssText = 'margin-top:0.5rem;color:var(--color-accent);font-size:0.9rem;font-weight:500;';
-      f.appendChild(msg);
-      (f.querySelector('input[name=email]') as HTMLInputElement).value = '';
-      console.info('[newsletter] subscribe placeholder', { email, locale });
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showStatus(invalidMsg[lang], 'error');
+        return;
+      }
+
+      button.disabled = true;
+      const originalLabel = button.textContent;
+      button.textContent = '…';
+
+      try {
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ email, locale: lang }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.ok) {
+          showStatus(data.alreadySubscribed ? alreadyMsg[lang] : successMsg[lang], 'success');
+          emailInput.value = '';
+        } else {
+          showStatus(errorMsg[lang], 'error');
+        }
+      } catch {
+        showStatus(errorMsg[lang], 'error');
+      } finally {
+        button.disabled = false;
+        button.textContent = originalLabel;
+      }
     });
   });
 </script>
