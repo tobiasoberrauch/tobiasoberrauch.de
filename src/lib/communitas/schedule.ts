@@ -99,6 +99,22 @@ export function pickAnchorForSchaleAndWeekday(
   return null;
 }
 
+/**
+ * ASCII-fold a weekday for filename matching. Filenames live in plain ASCII so
+ * they remain portable across filesystems and `git` configurations; the
+ * canonical Communitas weekday names include `versöhnung` which we map to
+ * `versoehnung` on disk. This fold is the only translation between the
+ * in-memory enum and the on-disk pool.
+ */
+function weekdayToFilenameStem(weekday: CommunitasWeekday): string {
+  return weekday
+    .toLowerCase()
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss');
+}
+
 function tryPool(
   contentRoot: string,
   kind: AnchorKind,
@@ -113,8 +129,14 @@ function tryPool(
   } catch {
     return null;
   }
+  const stem = weekdayToFilenameStem(weekday);
   const matches = entries
-    .filter((n) => n.endsWith('.md') && n.toLowerCase().startsWith(weekday.toLowerCase()))
+    .filter((n) => {
+      if (!n.endsWith('.md')) return false;
+      const lower = n.toLowerCase();
+      // Accept both ASCII-folded (versoehnung) and direct (versöhnung) names.
+      return lower.startsWith(stem) || lower.startsWith(weekday.toLowerCase());
+    })
     .sort((a, b) => a.localeCompare(b));
   if (matches.length === 0) return null;
   const idx = dayOfYearUTC(today) % matches.length;
