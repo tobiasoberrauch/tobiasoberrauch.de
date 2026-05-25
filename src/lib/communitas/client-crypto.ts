@@ -39,14 +39,46 @@ const SALT_PREFIX = 'communitas:v1:';
  *
  * We use Argon2id for the password stretch (defends against weak passphrases),
  * then import the raw 32 bytes into Web Crypto.
+ *
+ * `extraSalt` (optional) is appended to the slot-derived application salt.
+ * This is required for the Zelle where each member gets a unique 16-byte
+ * random salt so the same passphrase derives different keys for different
+ * members, AND so the same passphrase on a new device (after fetching the
+ * salt from the server) re-derives the SAME key — enabling cross-device
+ * usage without server-side key escrow.
  */
 export async function deriveKey(
   passphrase: string,
-  slot: string
+  slot: string,
+  extraSalt?: Uint8Array
 ): Promise<CryptoKey> {
   assertBrowser();
+  return deriveKeyCore(passphrase, slot, extraSalt);
+}
+
+/**
+ * Pure (Node-compatible) variant of deriveKey. Does NOT call assertBrowser
+ * and does NOT touch IndexedDB. Used by unit tests under Node where
+ * `crypto.subtle` is available globally on Node 22.
+ *
+ * Application code should always call `deriveKey` (the browser-guarded
+ * wrapper) — `deriveKeyCore` is exported only for the test suite.
+ */
+export async function deriveKeyCore(
+  passphrase: string,
+  slot: string,
+  extraSalt?: Uint8Array
+): Promise<CryptoKey> {
   const enc = new TextEncoder();
-  const salt = enc.encode(SALT_PREFIX + slot);
+  const prefixBytes = enc.encode(SALT_PREFIX + slot);
+  let salt: Uint8Array;
+  if (extraSalt && extraSalt.length > 0) {
+    salt = new Uint8Array(prefixBytes.length + extraSalt.length);
+    salt.set(prefixBytes, 0);
+    salt.set(extraSalt, prefixBytes.length);
+  } else {
+    salt = prefixBytes;
+  }
   const raw = argon2id(enc.encode(passphrase), salt, {
     t: ARGON_ITERS,
     m: ARGON_MEM_KiB,
@@ -60,6 +92,33 @@ export async function deriveKey(
     false,
     ['encrypt', 'decrypt']
   );
+}
+
+/**
+ * Node-safe encrypt — same as encryptText but skips the browser guard.
+ * Used by unit tests.
+ */
+export async function encryptTextCore(
+  plaintext: string,
+  key: CryptoKey
+): Promise<CipherBlob> {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const enc = new TextEncoder().encode(plaintext);
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc);
+  return { ciphertext: new Uint8Array(ct), iv };
+}
+
+/**
+ * Node-safe decrypt — same as decryptText but skips the browser guard.
+ * Used by unit tests.
+ */
+export async function decryptTextCore(
+  ciphertext: Uint8Array,
+  iv: Uint8Array,
+  key: CryptoKey
+): Promise<string> {
+  const dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+  return new TextDecoder().decode(dec);
 }
 
 export interface CipherBlob {

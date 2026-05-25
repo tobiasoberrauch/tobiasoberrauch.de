@@ -142,7 +142,11 @@ const middayActive = isMiddayActiveDay(todayDate);
 
         <h2>Räume</h2>
         <ul class="rooms">
-          <li class="disabled">Zelle — <span class="muted">in Vorbereitung</span></li>
+          {(member.tier === 'voll' || member.tier === 'inner_circle') ? (
+            <li><a href="/communitas-mitglied/zelle/">Zelle</a></li>
+          ) : (
+            <li class="disabled">Zelle — <span class="muted">ab Voll-Mitgliedschaft</span></li>
+          )}
           <li class="disabled">Briefkreis — <span class="muted">in Vorbereitung</span></li>
         </ul>
       </section>

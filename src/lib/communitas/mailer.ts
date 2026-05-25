@@ -13,6 +13,15 @@
 
 const RESEND_API = 'https://api.resend.com';
 
+export interface MailAttachment {
+  /** Display filename in the mail client. */
+  filename: string;
+  /** Raw content; passed as base64 to Resend. */
+  content: Buffer | Uint8Array;
+  /** Optional MIME type; defaults to application/octet-stream. */
+  contentType?: string;
+}
+
 export interface MailParams {
   to: string | string[];
   subject: string;
@@ -23,6 +32,8 @@ export interface MailParams {
   replyTo?: string;
   /** Plain-text alternative; recommended but optional. */
   text?: string;
+  /** Optional file attachments — used by the account-export flow (T091). */
+  attachments?: MailAttachment[];
 }
 
 export type MailResult =
@@ -103,6 +114,17 @@ export async function sendMail(params: MailParams): Promise<MailResult> {
   };
   if (params.text) body.text = params.text;
   if (replyTo) body.reply_to = replyTo;
+  if (params.attachments && params.attachments.length > 0) {
+    body.attachments = params.attachments.map((a) => {
+      const buf =
+        a.content instanceof Buffer ? a.content : Buffer.from(a.content);
+      return {
+        filename: a.filename,
+        content: buf.toString('base64'),
+        content_type: a.contentType ?? 'application/octet-stream',
+      };
+    });
+  }
 
   const res = await fetch(`${RESEND_API}/emails`, {
     method: 'POST',

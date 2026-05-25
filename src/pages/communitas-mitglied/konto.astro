@@ -30,6 +30,7 @@ interface SubscriptionRow {
 interface MemberRow {
   display_name: string;
   email: string;
+  last_export_at: Date | null;
 }
 
 let member: MemberRow | null = null;
@@ -39,7 +40,7 @@ let loadError = '';
 if (session) {
   try {
     const mrows = await sql<MemberRow[]>`
-      SELECT display_name, email FROM members WHERE id = ${session.memberId} LIMIT 1
+      SELECT display_name, email, last_export_at FROM members WHERE id = ${session.memberId} LIMIT 1
     `;
     if (mrows.length > 0) member = mrows[0];
     const srows = await sql<SubscriptionRow[]>`
@@ -177,13 +178,29 @@ function formatGermanDate(d: Date | null | undefined): string {
           </>
         )}
 
-        <h2>Konto schließen</h2>
-        <p class="muted">
-          Schließen heißt: vollständiger Datenexport plus harte Löschung.
-          Phase 6 (Zelle) muss erst stehen — derzeit nicht aktiv.
+        <h2>Daten exportieren</h2>
+        <p>
+          Bevor du gehen kannst, exportierst du deine Daten. Wir senden dir
+          ein vollständiges Archiv per E-Mail. Die Zell-Einträge bleiben
+          verschlüsselt — nur du kannst sie öffnen.
         </p>
-        <button type="button" class="quiet-button" disabled>
-          Konto schließen (bald)
+        {member.last_export_at && (
+          <p class="muted">
+            Letzter Export: {formatGermanDate(member.last_export_at)}
+          </p>
+        )}
+        <button type="button" id="export-btn" class="quiet-button">
+          Daten exportieren
+        </button>
+
+        <h2>Konto schließen</h2>
+        <p>
+          Schließen heißt: harte Löschung deiner Inhalte. Subscription-Daten
+          bleiben für die Buchhaltung erhalten; alles übrige geht verloren.
+          Du brauchst einen Datenexport innerhalb der letzten 30 Tage.
+        </p>
+        <button type="button" id="close-btn" class="quiet-button">
+          Konto schließen
         </button>
       </section>
     )}
@@ -276,6 +293,59 @@ function formatGermanDate(d: Date | null | undefined): string {
         alert('Verbindung verloren.');
       } finally {
         cancelBtn.disabled = false;
+      }
+    });
+
+    const exportBtn = document.getElementById('export-btn') as HTMLButtonElement | null;
+    exportBtn?.addEventListener('click', async () => {
+      exportBtn.disabled = true;
+      try {
+        const res = await fetch('/api/communitas/account/export', {
+          method: 'POST',
+        });
+        if (res.ok) {
+          alert('Dein Archiv ist unterwegs per E-Mail.');
+          window.location.reload();
+        } else {
+          alert('Export hat nicht geklappt. Bitte später noch einmal.');
+        }
+      } catch {
+        alert('Verbindung verloren.');
+      } finally {
+        exportBtn.disabled = false;
+      }
+    });
+
+    const closeBtn = document.getElementById('close-btn') as HTMLButtonElement | null;
+    closeBtn?.addEventListener('click', async () => {
+      const ok = window.confirm(
+        'Konto wirklich schließen? Es gibt kein Zurück. Schreibe „Ich verstehe" um fortzufahren — diese Bestätigung reicht beim nächsten Klick.'
+      );
+      if (!ok) return;
+      const ok2 = window.confirm('Wirklich? Alle Inhalte werden gelöscht.');
+      if (!ok2) return;
+      closeBtn.disabled = true;
+      try {
+        const res = await fetch('/api/communitas/account/leave', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ confirmation: 'Ich verstehe' }),
+        });
+        if (res.ok) {
+          alert('Du gehst in Frieden.');
+          window.location.href = '/communitas/';
+        } else {
+          const body = await res.json().catch(() => ({}));
+          if ((body as { code?: string }).code === 'export_required') {
+            alert('Bitte exportiere zuerst deine Daten.');
+          } else {
+            alert('Bitte versuche es später noch einmal.');
+          }
+        }
+      } catch {
+        alert('Verbindung verloren.');
+      } finally {
+        closeBtn.disabled = false;
       }
     });
   </script>

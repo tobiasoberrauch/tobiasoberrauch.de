@@ -1,0 +1,123 @@
+---
+/**
+ * /communitas-mitglied/zelle — Phase 6 / US4 / T086.
+ *
+ * Server-rendered shell. Performs auth + tier check; the entire writing
+ * surface (CellEditor) is a `client:load` React island. The server has
+ * no key and never touches plaintext.
+ */
+import Base from '../../layouts/Base.astro';
+import CellEditor from '../../components/communitas/CellEditor';
+import { getSession } from '../../lib/communitas/auth';
+import { sql } from '../../lib/communitas/db';
+
+export const prerender = false;
+
+const session = await getSession(Astro.request).catch(() => null);
+
+interface MemberRow {
+  id: number;
+  display_name: string;
+}
+interface SubRow {
+  tier: 'basis' | 'voll' | 'inner_circle';
+  status: string;
+}
+
+let member: MemberRow | null = null;
+let tier: SubRow['tier'] | null = null;
+
+if (session) {
+  try {
+    const rows = await sql<MemberRow[]>`
+      SELECT id, display_name FROM members WHERE id = ${session.memberId} LIMIT 1
+    `;
+    if (rows.length > 0) member = rows[0];
+    const subs = await sql<SubRow[]>`
+      SELECT tier, status FROM subscriptions
+      WHERE member_id = ${session.memberId}
+        AND status IN ('active', 'paused', 'scholarship')
+      ORDER BY created_at DESC LIMIT 1
+    `;
+    if (subs.length > 0) tier = subs[0].tier;
+  } catch (err) {
+    console.warn('[zelle.astro] db error', (err as Error).message);
+  }
+}
+
+const hasAccess = tier === 'voll' || tier === 'inner_circle';
+---
+
+<Base
+  title="Communitas Cotidiana — Zelle"
+  description="Der private Schreibraum. Niemand außer dir liest, was hier steht."
+  locale="de"
+>
+  <article class="zelle">
+    {!session && (
+      <section>
+        <h1>Zelle</h1>
+        <p>
+          Bitte melde dich an. Die Zelle ist nur eingeloggten Mitgliedern
+          zugänglich.
+        </p>
+        <p>
+          <a href="/communitas-mitglied/">Zum Anmelde-Formular</a>
+        </p>
+      </section>
+    )}
+
+    {session && !member && (
+      <section>
+        <h1>Zelle</h1>
+        <p>Wir konnten dein Profil gerade nicht laden.</p>
+      </section>
+    )}
+
+    {session && member && !hasAccess && (
+      <section>
+        <h1>Zelle</h1>
+        <p>
+          Die Zelle ist Bestandteil der Voll- und Inner-Circle-Mitgliedschaft.
+          Wenn du sie nutzen willst, schreib uns.
+        </p>
+      </section>
+    )}
+
+    {session && member && hasAccess && (
+      <section>
+        <h1>Zelle</h1>
+        <p class="lede">
+          Ein privater Raum. Niemand außer dir liest, was hier steht — auch
+          wir nicht. Das ist nicht Versprechen, sondern Architektur.
+        </p>
+        <CellEditor
+          client:load
+          memberId={member.id}
+          displayName={member.display_name}
+        />
+      </section>
+    )}
+  </article>
+
+  <style>
+    .zelle {
+      max-width: 64rem;
+      margin: 2.5rem auto;
+      padding: 0 1.25rem;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: #1c1917;
+      line-height: 1.6;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 400;
+      margin: 0 0 1rem;
+    }
+    .lede {
+      color: #44403c;
+      max-width: 38rem;
+      margin: 0 0 1.5rem;
+    }
+  </style>
+</Base>
