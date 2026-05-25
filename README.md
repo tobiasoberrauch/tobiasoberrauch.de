@@ -41,3 +41,14 @@ All commands are run from the root of the project, from a terminal:
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+
+## Communitas Cotidiana
+
+This repository also hosts the [Communitas Cotidiana](https://tobiasoberrauch.de/communitas/) feature — a small, deliberately quiet membership platform layered onto the same Astro deployment.
+
+- Specification: `specs/001-communitas-cotidiana/` (spec, plan, data model, contracts, tasks)
+- Operations runbook: `docs/communitas/operations.md`
+- Data policy / DSGVO: `docs/communitas/data-policy.md`
+- Migrations: `migrations/communitas/*.sql`
+- Server code: `src/lib/communitas/`, `src/pages/api/communitas/`, `src/pages/communitas/`, `src/pages/communitas-mitglied/`
+- Unit tests: `tests/communitas/unit/` (run via `npm run test:unit`)

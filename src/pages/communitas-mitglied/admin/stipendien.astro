@@ -1,0 +1,332 @@
+---
+/**
+ * Phase 8 — Stipendien-Vergabe (3-of-N Begleiter-Konsens).
+ *
+ * Companion-only. Zeigt:
+ *  - Pool-Stand (Beitrag minus bisherige Grants im laufenden Jahr — wir
+ *    schätzen den „Verbrauch" über die Anzahl der scholarship_grants ×
+ *    €3600 Voll-Tier, weil Pool und Grants per Spec NICHT verbunden sind)
+ *  - offene Bewerbungen mit entschlüsseltem Brief und Vote-Buttons
+ *  - Grants des laufenden Jahres
+ *
+ * Anonymität: das einzige, was hier zum Empfänger sichtbar ist, ist die
+ * `applicant_member_id` (für Auto-Grant nötig). Beiträge zum Pool werden
+ * NIE zu Empfängern verknüpft — research.md §10.
+ */
+import Base from '../../../layouts/Base.astro';
+import { sql } from '../../../lib/communitas/db';
+import { requireCompanion, AuthError } from '../../../lib/communitas/auth';
+import { decryptLetter } from '../../../lib/communitas/crypto';
+
+export const prerender = false;
+
+interface ApplicationRow {
+  id: number;
+  application_year: number;
+  letter_ciphertext: Buffer;
+  letter_iv: Buffer;
+  applicant_member_id: number | null;
+  applicant_display_name: string | null;
+  received_at: Date;
+  ja_count: number;
+  nein_count: number;
+  caller_vote: string | null;
+}
+
+interface GrantRow {
+  id: number;
+  grant_year: number;
+  granted_on: Date;
+  recipient_display_name: string;
+}
+
+let authError: number | null = null;
+let dbError: string | null = null;
+let openApps: ApplicationRow[] = [];
+let grants: GrantRow[] = [];
+let poolBalanceCents = 0;
+let callerId = 0;
+let decryptedLetters = new Map<number, string>();
+
+const currentYear = new Date().getUTCFullYear();
+
+try {
+  const session = await requireCompanion(Astro.request);
+  callerId = session.memberId;
+  try {
+    const balanceRows = await sql<{ total_cents: number }[]>`
+      SELECT COALESCE(SUM(amount_cents), 0)::bigint AS total_cents
+      FROM scholarship_pool_contributions
+      WHERE contribution_year <= ${currentYear}
+    `;
+    const grantsSoFarRows = await sql<{ n: number }[]>`
+      SELECT COUNT(*)::int AS n FROM scholarship_grants
+      WHERE grant_year = ${currentYear}
+    `;
+    // Each scholarship is one Voll year = €3600 = 360000 cents.
+    poolBalanceCents =
+      Number(balanceRows[0].total_cents) - Number(grantsSoFarRows[0].n) * 360000;
+
+    openApps = await sql<ApplicationRow[]>`
+      SELECT
+        sa.id, sa.application_year, sa.letter_ciphertext, sa.letter_iv,
+        sa.applicant_member_id, sa.received_at,
+        (
+          SELECT m.display_name FROM members m WHERE m.id = sa.applicant_member_id
+        ) AS applicant_display_name,
+        (
+          SELECT COUNT(*)::int FROM scholarship_votes sv
+          WHERE sv.application_id = sa.id AND sv.vote = 'ja'
+        ) AS ja_count,
+        (
+          SELECT COUNT(*)::int FROM scholarship_votes sv2
+          WHERE sv2.application_id = sa.id AND sv2.vote = 'nein'
+        ) AS nein_count,
+        (
+          SELECT sv3.vote FROM scholarship_votes sv3
+          WHERE sv3.application_id = sa.id AND sv3.voter_member_id = ${callerId}
+          LIMIT 1
+        ) AS caller_vote
+      FROM scholarship_applications sa
+      WHERE sa.decision IS NULL
+      ORDER BY sa.received_at DESC
+      LIMIT 50
+    `;
+
+    for (const app of openApps) {
+      try {
+        decryptedLetters.set(
+          Number(app.id),
+          decryptLetter(Buffer.from(app.letter_ciphertext), Buffer.from(app.letter_iv)),
+        );
+      } catch {
+        decryptedLetters.set(Number(app.id), '[Entschlüsselung fehlgeschlagen]');
+      }
+    }
+
+    grants = await sql<GrantRow[]>`
+      SELECT sg.id, sg.grant_year, sg.granted_on,
+             m.display_name AS recipient_display_name
+      FROM scholarship_grants sg
+      JOIN members m ON m.id = sg.recipient_member_id
+      WHERE sg.grant_year = ${currentYear}
+      ORDER BY sg.granted_on DESC
+    `;
+  } catch (err) {
+    dbError = (err as Error).message;
+  }
+} catch (err) {
+  if (err instanceof AuthError) {
+    authError = err.status;
+    Astro.response.status = err.status;
+  } else {
+    throw err;
+  }
+}
+
+function eur(cents: number): string {
+  return `€ ${(cents / 100).toLocaleString('de-DE', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  })}`;
+}
+
+function germanDate(d: Date | string): string {
+  const date = typeof d === 'string' ? new Date(d) : d;
+  return date.toLocaleDateString('de-DE', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+  });
+}
+
+function excerpt(text: string, n = 400): string {
+  const t = text.replace(/\s+/g, ' ').trim();
+  return t.length <= n ? t : t.slice(0, n - 1) + '…';
+}
+---
+
+<Base
+  title="Stipendien — Communitas"
+  description="Stipendien-Vergabe."
+  locale="de"
+  noindex={true}
+>
+  <article class="stipendien">
+    <h1>Stipendien</h1>
+
+    {authError === 401 && <p class="notice">Du bist nicht eingeloggt.</p>}
+    {authError === 403 && (
+      <p class="notice">Zugang verweigert. Nur Begleiter.</p>
+    )}
+    {!authError && dbError && (
+      <p class="notice">Datenbank nicht erreichbar: <code>{dbError}</code></p>
+    )}
+
+    {!authError && !dbError && (
+      <>
+        <section>
+          <p>
+            <strong>Pool-Stand {currentYear}:</strong> {eur(Math.max(0, poolBalanceCents))}
+            <span class="muted"> (Beiträge minus {grants.length} Grants × €3600)</span>
+          </p>
+        </section>
+
+        <hr class="rule" />
+
+        <section>
+          <h2>Offene Bewerbungen ({openApps.length})</h2>
+          {openApps.length === 0 && <p class="muted">Keine offenen Bewerbungen.</p>}
+          {openApps.map((app) => {
+            const letter = decryptedLetters.get(Number(app.id)) ?? '';
+            return (
+              <article class="application" data-id={app.id}>
+                <header>
+                  <span class="meta">Eingegangen {germanDate(app.received_at)}</span>
+                  {app.applicant_member_id && (
+                    <span class="meta">
+                      · Mitglied: {app.applicant_display_name}
+                    </span>
+                  )}
+                  {!app.applicant_member_id && (
+                    <span class="meta"> · Extern (kein Konto)</span>
+                  )}
+                </header>
+                <blockquote>{excerpt(letter, 800)}</blockquote>
+                <p class="meta">
+                  Stimmen: {app.ja_count}× ja, {app.nein_count}× nein
+                  {app.caller_vote && (
+                    <span> · Deine Stimme: <strong>{app.caller_vote}</strong></span>
+                  )}
+                </p>
+                <div class="vote-buttons">
+                  <button data-vote="ja" data-id={app.id}>Ja</button>
+                  <button data-vote="nein" data-id={app.id}>Nein</button>
+                  <button data-vote="enthalten" data-id={app.id}>Enthalten</button>
+                </div>
+                {!app.applicant_member_id && (
+                  <p class="muted small">
+                    Hinweis: Automatische Vergabe nur möglich, sobald ein
+                    Mitgliedskonto verknüpft ist.
+                  </p>
+                )}
+              </article>
+            );
+          })}
+        </section>
+
+        <hr class="rule" />
+
+        <section>
+          <h2>Grants {currentYear} ({grants.length})</h2>
+          {grants.length === 0 && <p class="muted">Noch keine Grants.</p>}
+          {grants.length > 0 && (
+            <ul class="grants">
+              {grants.map((g) => (
+                <li>
+                  {germanDate(g.granted_on)} · {g.recipient_display_name}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </>
+    )}
+  </article>
+
+  <script>
+    document.querySelectorAll<HTMLButtonElement>('button[data-vote]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const vote = btn.dataset.vote;
+        const id = btn.dataset.id;
+        if (!vote || !id) return;
+        btn.disabled = true;
+        try {
+          const res = await fetch('/api/communitas/admin/stipendien/vote', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ application_id: Number(id), vote }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.granted) {
+              alert(`Stipendium vergeben (Grant #${data.grant_id}).`);
+            }
+            window.location.reload();
+          } else {
+            const txt = await res.text();
+            alert(`Fehler: ${txt}`);
+            btn.disabled = false;
+          }
+        } catch (err) {
+          alert(`Verbindungsfehler: ${(err as Error).message}`);
+          btn.disabled = false;
+        }
+      });
+    });
+  </script>
+
+  <style>
+    .stipendien {
+      max-width: 48rem;
+      margin: 2rem auto;
+      padding: 0 1.25rem 4rem;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: #1c1917;
+      background: #fefefe;
+    }
+    .stipendien h1 {
+      font-size: 1.8rem;
+      font-weight: 400;
+      margin: 0 0 2rem;
+    }
+    .stipendien h2 {
+      font-size: 1.25rem;
+      font-weight: 400;
+      margin: 0 0 1rem;
+    }
+    .rule {
+      border: 0;
+      border-top: 1px solid #d6d3d1;
+      margin: 2rem 0;
+    }
+    .application {
+      border-top: 1px solid #d6d3d1;
+      padding: 1.5rem 0;
+    }
+    .application:first-of-type { border-top: 0; }
+    blockquote {
+      border-left: 2px solid #d6d3d1;
+      margin: 1rem 0;
+      padding: 0.2rem 0 0.2rem 1rem;
+      white-space: pre-wrap;
+    }
+    .meta { color: #78716c; font-size: 0.9rem; }
+    .meta.small, .small { font-size: 0.85rem; }
+    .vote-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin: 0.5rem 0;
+    }
+    .vote-buttons button {
+      background: #fefefe;
+      color: #1c1917;
+      border: 1px solid #1c1917;
+      padding: 0.4rem 0.9rem;
+      font: inherit;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .vote-buttons button:hover {
+      background: #1c1917;
+      color: #fefefe;
+    }
+    .vote-buttons button:disabled { opacity: 0.5; cursor: wait; }
+    .grants { list-style: none; padding: 0; margin: 0; }
+    .grants li {
+      padding: 0.5rem 0;
+      border-top: 1px solid #d6d3d1;
+    }
+    .grants li:first-child { border-top: 0; }
+    .notice { color: #78716c; font-style: italic; }
+    .muted { color: #78716c; }
+  </style>
+</Base>

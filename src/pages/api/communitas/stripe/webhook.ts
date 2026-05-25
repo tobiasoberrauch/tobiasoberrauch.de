@@ -26,6 +26,7 @@ import {
 import { sendMail } from '../../../../lib/communitas/mailer';
 import welcomeTemplate from '../../../../lib/communitas/email-templates/welcome';
 import paymentFailedTemplate from '../../../../lib/communitas/email-templates/payment-failed';
+import retreatConfirmationTemplate from '../../../../lib/communitas/email-templates/retreat-confirmation';
 import {
   nextSubscriptionState,
   type SubscriptionStatus,
@@ -167,9 +168,12 @@ async function handleCheckoutCompleted(
     );
     return;
   }
+  if (session.mode === 'payment') {
+    // Retreat booking (one-time charge) — Phase 8 / T106.
+    await handleRetreatCheckoutCompleted(session);
+    return;
+  }
   if (session.mode !== 'subscription') {
-    // Retreat bookings come through as one-time `mode: 'payment'` sessions;
-    // they're handled by the retreat booking flow (Phase 8), not here.
     return;
   }
   const subscriptionId =
@@ -286,6 +290,83 @@ async function handleCheckoutCompleted(
       // source='nordstern_share'. They are a separate product line per
       // Spec FR-017.
     }
+  }
+}
+
+async function handleRetreatCheckoutCompleted(
+  session: Stripe.Checkout.Session,
+): Promise<void> {
+  const retreatIdStr = session.metadata?.retreat_id;
+  const memberIdStr = session.metadata?.member_id ?? session.client_reference_id;
+  const priceStr = session.metadata?.price_paid_cents;
+  const retreatId = Number(retreatIdStr);
+  const memberId = Number(memberIdStr);
+  const price = Number(priceStr);
+  if (
+    !Number.isFinite(retreatId) || retreatId <= 0 ||
+    !Number.isFinite(memberId) || memberId <= 0 ||
+    !Number.isFinite(price) || price < 0
+  ) {
+    console.warn('[stripe/webhook] retreat payment missing metadata');
+    return;
+  }
+  const paymentIntentId =
+    typeof session.payment_intent === 'string'
+      ? session.payment_intent
+      : session.payment_intent?.id ?? null;
+
+  // Idempotent insert; if the row already exists (e.g. webhook redelivery)
+  // we don't re-send the confirmation mail.
+  const inserted = await sql<{ id: number }[]>`
+    INSERT INTO retreat_bookings (
+      retreat_id, member_id, price_paid_cents, stripe_payment_intent_id
+    ) VALUES (
+      ${retreatId}, ${memberId}, ${price}, ${paymentIntentId}
+    )
+    ON CONFLICT (retreat_id, member_id) DO NOTHING
+    RETURNING id
+  `;
+  if (inserted.length === 0) return; // already booked — webhook redelivery
+
+  const retreatRows = await sql<
+    { title: string; location: string; start_date: Date; end_date: Date }[]
+  >`
+    SELECT title, location, start_date, end_date
+    FROM retreats WHERE id = ${retreatId} LIMIT 1
+  `;
+  if (retreatRows.length === 0) return;
+  const r = retreatRows[0];
+
+  const member = await loadMember(memberId);
+  if (!member) return;
+
+  function germanDate(d: Date | string): string {
+    const date = typeof d === 'string' ? new Date(d + 'T12:00:00Z') : d;
+    return date.toLocaleDateString('de-DE', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  }
+
+  try {
+    await sendMail({
+      to: member.email,
+      subject: 'Anmeldung bestätigt.',
+      html: retreatConfirmationTemplate({
+        name: member.display_name,
+        retreat_title: r.title,
+        retreat_location: r.location,
+        start_date_label: germanDate(r.start_date),
+        end_date_label: germanDate(r.end_date),
+      }),
+    });
+  } catch (err) {
+    console.warn(
+      '[stripe/webhook] retreat confirmation mail failed for member_id=',
+      memberId,
+      (err as Error).message,
+    );
   }
 }
 

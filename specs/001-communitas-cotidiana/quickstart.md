@@ -215,6 +215,43 @@ npm run test:unit                  # Vitest
 npm run test:e2e                   # Playwright (Dev-Server muss laufen)
 ```
 
+## Phase 8 — Polish
+
+Die in Phase 8 hinzugefügten Pfade und Cron-Jobs erfordern keine neuen
+Env-Var, nutzen aber die bestehenden:
+
+- `CRON_SECRET` gilt jetzt auch für den neuen Wochen-Cron
+  `/api/communitas/cron/renewal-reminder` (Dienstag 09:00 UTC).
+- `SITE_URL` (Default `https://tobiasoberrauch.de`) wird für die
+  Cancel-Token-URLs in der Renewal-Reminder-Mail und für Stripe-
+  Checkout-Redirects bei Reisen-Buchungen verwendet.
+- `LETTER_ENCRYPTION_KEY` verschlüsselt zusätzlich die anonymen
+  Stipendien-Bewerbungs-Briefe (`scholarship_applications.letter_ciphertext`).
+
+Neue Migrationen seit Phase 7:
+
+```bash
+# migrations/communitas/011_retreat_surcharge.sql  — Voll-Aufpreis pro Reise
+# migrations/communitas/012_renewal_reminder_tracking.sql — Dedupe-Spalte
+# migrations/communitas/013_scholarship_applications.sql — Bewerbungen + Votes
+npm run communitas:migrate
+```
+
+Neue Admin-UIs:
+
+- `/communitas-mitglied/admin/vollmond` — Vollmond-Brief-Editor +
+  Vier-Stimmen-Check + Stille-Versammlung-Einladung
+- `/communitas-mitglied/admin/stipendien` — 3-of-N-Konsens-UI
+- `/communitas-mitglied/reisen` — Mitglieder-Übersicht aller Reisen
+
+Phase-8-Tests:
+
+- `tests/communitas/unit/anti-personenkult.test.ts` — verbietet
+  Quote-Module / Highlight-Komponenten / "Most Quoted"-Strings
+- `tests/communitas/unit/no-tracking.test.ts` — prüft Source-Files (kein
+  fbq, gtag, mixpanel, hotjar etc.) und alle E-Mail-Templates auf
+  fehlende `<img src>`-Tags
+
 ## Wichtige Konventionen
 
 - **Keine Tracker auf Member-Routen**: `<Analytics />` und OpenPanel-Script werden in `Base.astro` per `Astro.url.pathname.startsWith('/communitas-mitglied')` ausgeschlossen.
