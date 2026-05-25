@@ -36,5 +36,7 @@ export default defineConfig({
     }),
     keystatic(),
   ],
-  adapter: vercel(),
+  adapter: vercel({
+    regions: ['fra1'],
+  }),
 });
