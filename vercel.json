@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    { "path": "/api/communitas/cron/morning", "schedule": "0 4 * * *" },
+    { "path": "/api/communitas/cron/noon", "schedule": "0 10 * * 1,3,5" },
+    { "path": "/api/communitas/cron/evening", "schedule": "0 19 * * *" },
+    { "path": "/api/communitas/cron/three-month-check", "schedule": "0 12 * * 0" },
+    { "path": "/api/communitas/cron/return-letters", "schedule": "0 9 * * *" },
+    { "path": "/api/communitas/cron/scholarship-cycle", "schedule": "0 12 1 11 *" }
+  ],
+  "functions": {
+    "src/pages/api/communitas/**/*.ts": {
+      "regions": ["fra1"]
+    }
+  }
+}

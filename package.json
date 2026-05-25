@@ -9,7 +9,11 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "communitas:migrate": "tsx scripts/communitas-migrate.ts",
+    "communitas:seed": "tsx scripts/communitas-seed.ts",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@astrojs/markdoc": "^1.0.3",
@@ -19,11 +23,21 @@
     "@astrojs/vercel": "^10.0.4",
     "@keystatic/astro": "^5.0.6",
     "@keystatic/core": "^0.5.50",
+    "@noble/ciphers": "^1.0.0",
+    "@noble/hashes": "^1.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vercel/analytics": "^2.0.1",
     "astro": "^6.1.8",
+    "postgres": "^3.4.4",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "stripe": "^15.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "playwright": "^1.48.0",
+    "tsx": "^4.19.0",
+    "vitest": "^1.6.0"
   }
 }

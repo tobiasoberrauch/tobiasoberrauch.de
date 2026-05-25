@@ -1,0 +1,99 @@
+/*
+ * Communitas Cotidiana — Design Tokens
+ *
+ * Black on white. Georgia serif. No animations beyond opacity-reveal.
+ * Per spec FR-008: no trackers, no marketing pixels, no decorative motion.
+ */
+
+:root {
+  --c-paper: #fefefe;
+  --c-ink: #1c1917;
+  --c-rule: #d6d3d1;
+  --c-muted: #78716c;
+  --c-accent: #1c1917;
+
+  --c-font-serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', Times, serif;
+  --c-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --c-measure: 38rem;
+  --c-rhythm: 1.6;
+}
+
+.communitas-root {
+  background: var(--c-paper);
+  color: var(--c-ink);
+  font-family: var(--c-font-serif);
+  font-size: 18px;
+  line-height: var(--c-rhythm);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.communitas-root a {
+  color: var(--c-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+.communitas-root a:hover {
+  color: var(--c-muted);
+}
+
+.communitas-root h1,
+.communitas-root h2,
+.communitas-root h3 {
+  font-family: var(--c-font-serif);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin: 2em 0 0.6em;
+}
+
+.communitas-root h1 { font-size: 1.8rem; }
+.communitas-root h2 { font-size: 1.4rem; }
+.communitas-root h3 { font-size: 1.15rem; }
+
+.communitas-root p {
+  margin: 0 0 1em;
+  max-width: var(--c-measure);
+}
+
+.communitas-root hr {
+  border: 0;
+  border-top: 1px solid var(--c-rule);
+  margin: 2em 0;
+}
+
+.communitas-root small,
+.communitas-root .c-muted {
+  color: var(--c-muted);
+  font-size: 0.875rem;
+}
+
+.communitas-root dl dt {
+  font-style: italic;
+  margin-top: 1em;
+}
+.communitas-root dl dd {
+  margin: 0.2em 0 0;
+}
+
+/* The only animation allowed: a slow opacity-reveal on first paint. */
+.communitas-reveal {
+  opacity: 0;
+  animation: communitas-fade-in 0.8s ease 0.05s forwards;
+}
+
+@keyframes communitas-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .communitas-reveal {
+    animation: none;
+    opacity: 1;
+  }
+}

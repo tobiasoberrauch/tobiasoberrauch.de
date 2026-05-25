@@ -16,6 +16,11 @@ import {
 const openpanelClientId = import.meta.env.PUBLIC_OPENPANEL_CLIENT_ID;
 const openpanelApi = import.meta.env.PUBLIC_OPENPANEL_API ?? 'https://api.openpanel.dev';
 
+// Communitas: member-area routes must carry NO trackers (Spec FR-008).
+// Public /communitas/ pages keep analytics on — only the authenticated area
+// is shielded.
+const isMemberArea = Astro.url.pathname.startsWith('/communitas-mitglied');
+
 interface Props {
   title: string;
   description?: string;
@@ -173,7 +178,7 @@ const jsonLd = {
   <!-- JSON-LD Structured Data -->
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
-  {openpanelClientId && (
+  {!isMemberArea && openpanelClientId && (
     <script
       defer
       src="https://openpanel.dev/op1.js"
@@ -233,7 +238,7 @@ const jsonLd = {
   <!-- Grain overlay -->
   <div class="grain" aria-hidden="true"></div>
 
-  <Analytics />
+  {!isMemberArea && <Analytics />}
 
 
   <script>
