@@ -35,22 +35,91 @@ the implementation of Phase 2 — no credentials were available to the agent.
    COMMUNITAS_DATABASE_URL=<url> npm run communitas:seed
    ```
 
-## Phase 5 (Stripe — placeholder, executed in US3)
+## Phase 5 (Stripe — Setup für US3)
 
-### Stripe DPA + SEPA (T083)
+### Stripe account & DPA (T083)
 
 1. https://dashboard.stripe.com → Account anlegen, Geschäftssitz Deutschland.
-2. Settings → Legal → Sign the German DPA.
+   Business address must be a real German address (DSGVO Verantwortlicher).
+2. Settings → Account → Documents → sign the German DPA (Auftrags-
+   verarbeitungsvertrag). Save the signed PDF for the Verfahrensverzeichnis.
 3. Settings → Payment Methods → SEPA Direct Debit → Activate.
-4. Create three recurring products in Test mode:
-   - Communitas Basis — jährlich €960,00 → price ID → `STRIPE_PRICE_BASIS`
-   - Communitas Voll — jährlich €3.600,00 → `STRIPE_PRICE_VOLL`
-   - Communitas Inner Circle — jährlich €18.000,00 → `STRIPE_PRICE_INNER_CIRCLE`
+   (No Apple Pay, no Google Pay, no Buy-Now-Pay-Later — those load
+   client-side telemetry that Spec FR-018 forbids.)
+
+### Products & Price IDs
+
+4. Create three recurring products in Test mode (`Yearly`):
+   - Communitas Basis — €960,00 → copy Price ID → Vercel env
+     `STRIPE_PRICE_BASIS`.
+   - Communitas Voll — €3.600,00 → `STRIPE_PRICE_VOLL`.
+   - Communitas Inner Circle — €18.000,00 → `STRIPE_PRICE_INNER_CIRCLE`.
+
+   NORDSTERN (€22.500 / €75.000 / €180.000+) is a separate product line per
+   Spec FR-017. It is **not** in scope for Phase 5; once productised, add
+   `STRIPE_PRICE_NORDSTERN_*` env vars and extend `stripe.ts` + the webhook
+   path that inserts the 5 % scholarship share with `source='nordstern_share'`.
+
+### Webhook
+
 5. Add webhook endpoint
    `https://tobiasoberrauch.de/api/communitas/stripe/webhook` with events:
-   `checkout.session.completed`, `invoice.payment_failed`,
-   `customer.subscription.deleted`, `customer.subscription.updated`.
-   Copy the signing secret → `STRIPE_WEBHOOK_SECRET`.
+   - `checkout.session.completed`
+   - `invoice.payment_failed`
+   - `invoice.payment_succeeded` (recovery from past_due → active)
+   - `customer.subscription.deleted`
+   - `customer.subscription.updated`
+
+   Copy the signing secret → Vercel env `STRIPE_WEBHOOK_SECRET`.
+
+### Vercel env summary (Phase 5)
+
+| Variable | Source |
+|---|---|
+| `STRIPE_SECRET_KEY` | Stripe → Developers → API keys (server-side, sk_live_…) |
+| `STRIPE_WEBHOOK_SECRET` | Stripe → Webhooks → endpoint signing secret |
+| `STRIPE_PRICE_BASIS` | from step 4 above |
+| `STRIPE_PRICE_VOLL` | from step 4 above |
+| `STRIPE_PRICE_INNER_CIRCLE` | from step 4 above |
+| `SITE_URL` | `https://tobiasoberrauch.de` (production) |
+
+### Migration 007
+
+6. Apply migration `007_payment_failure_tracking.sql` (adds
+   `subscriptions.payment_failure_notified_at`) via:
+
+   ```bash
+   COMMUNITAS_DATABASE_URL=<url> npm run communitas:migrate
+   ```
+
+   The runner is idempotent — re-running on an already-migrated DB is safe.
+
+### Scholarship cron
+
+7. The annual scholarship cron is already declared in `vercel.json`:
+   `{ "path": "/api/communitas/cron/scholarship-cycle", "schedule": "0 12 1 11 *" }`.
+   No manual action needed beyond the env vars above. The handler is
+   defensive: it no-ops if the calendar day is not November 1 (Vercel
+   timezone drift guard).
+
+### Known Phase 5 limitations
+
+- **No renewal-reminder cron**. Template 11 is implemented; a cron that
+  selects subscriptions with `current_period_end - 28d == today` and
+  sends it is deferred to Phase 8 polish. The one-click cancel token
+  flow IS implemented (`cancel-token.ts` + `/api/communitas/subscription/cancel?token=…`),
+  so when the cron lands it can mint working URLs immediately.
+- **NORDSTERN price IDs are not configured** — see operational note above.
+- **The Begleiter decision UI for scholarships is a stub** — Phase 5 ships
+  the cron, the email (template 14), and the grant endpoint. Begleiter
+  currently issue grants via direct `POST /api/communitas/admin/scholarships/grant`
+  (or curl). Phase 8 will polish the decision page at
+  `/communitas-mitglied/admin/stipendien/`.
+- **NO Apple Pay / Google Pay / BNPL / Crypto.** Enforced by
+  `payment_method_types: ['sepa_debit', 'card']` in `stripe.ts`.
+- **DSGVO retention**: cancelled subscription rows are NOT auto-deleted —
+  we keep them for accounting and revenue history. The hard-delete on
+  Account-Schließen is a separate Phase 6+ flow.
 
 ## Phase 3 (User Story 1)
 
