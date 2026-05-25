@@ -1,0 +1,213 @@
+---
+/**
+ * TierCard — a single membership tier as a quiet rectangle.
+ *
+ * Phase 5 / US3 / T077. Used by `/communitas/preise` and (eventually) the
+ * post-acceptance email. By design, three cards stand side-by-side; there
+ * is NO comparison table with checkmarks, NO "Most Popular" badge, NO
+ * scarcity language, NO promotion code field.
+ *
+ * Behaviour:
+ *   - When `loggedIn` is true and the tier is selectable, the button POSTs
+ *     to /api/communitas/stripe/checkout and follows the returned URL.
+ *   - When `loggedIn` is false, the button is a link to
+ *     /communitas/bewerbung/?tier=<tier> so the application form pre-fills.
+ *   - Inner Circle always renders a note explaining the gespräch gate, even
+ *     when logged in — selection of IC requires an accepted IC application.
+ */
+export interface Props {
+  tier: 'basis' | 'voll' | 'inner_circle';
+  loggedIn?: boolean;
+}
+
+const { tier, loggedIn = false } = Astro.props;
+
+interface TierMeta {
+  label: string;
+  germanName: string;
+  yearlyEur: string;
+  monthlyEur: string;
+  blurb: string[];
+}
+
+const meta: Record<Props['tier'], TierMeta> = {
+  basis: {
+    label: 'Basis',
+    germanName: 'Communitas Basis',
+    yearlyEur: '€960',
+    monthlyEur: '€80',
+    blurb: [
+      'Drei stille E-Mail-Anker pro Tag.',
+      'Monatlicher Vollmond-Brief.',
+      'Zugang zu Stiller Versammlung und Lese-Versammlung.',
+    ],
+  },
+  voll: {
+    label: 'Voll',
+    germanName: 'Communitas Voll',
+    yearlyEur: '€3.600',
+    monthlyEur: '€300',
+    blurb: [
+      'Alles aus Basis.',
+      'Privater Schreibraum (Zelle) — server-blind verschlüsselt.',
+      'Briefkreis-Zuordnung (3–5 Menschen).',
+      'Wende-Reisen mit Selbstkostenanteil.',
+    ],
+  },
+  inner_circle: {
+    label: 'Inner Circle',
+    germanName: 'Inner Circle',
+    yearlyEur: '€18.000',
+    monthlyEur: '€1.500',
+    blurb: [
+      'Alles aus Voll.',
+      'Wende-Reisen inkludiert.',
+      'Persönliche Begleitung durch Tobias.',
+      '5 % des Beitrags fließen anonym in den Stipendien-Topf.',
+    ],
+  },
+};
+
+const m = meta[tier];
+const applicationHref = `/communitas/bewerbung/?tier=${tier}`;
+const isInnerCircle = tier === 'inner_circle';
+---
+
+<section class="tier-card" data-tier={tier}>
+  <h2 class="tier-name">{m.germanName}</h2>
+  <p class="tier-price">
+    <strong>{m.yearlyEur}</strong>
+    <span class="tier-price-unit"> / Jahr</span>
+    <span class="tier-price-monthly">({m.monthlyEur} / Monat)</span>
+  </p>
+  <ul class="tier-includes">
+    {m.blurb.map((line) => <li>{line}</li>)}
+  </ul>
+
+  {isInnerCircle && (
+    <p class="tier-note">
+      Nur auf persönliche Einladung. Aufnahmegespräch 90–120 Minuten mit Tobias.
+    </p>
+  )}
+
+  {loggedIn && !isInnerCircle && (
+    <button type="button" class="tier-button" data-tier-action={tier}>Wählen</button>
+  )}
+
+  {loggedIn && isInnerCircle && (
+    <button type="button" class="tier-button" data-tier-action={tier}>Wählen</button>
+  )}
+
+  {!loggedIn && (
+    <a class="tier-button tier-link" href={applicationHref}>Sich bewerben</a>
+  )}
+</section>
+
+<style>
+  .tier-card {
+    border: 1px solid #d6d3d1;
+    padding: 1.75rem 1.5rem 2rem;
+    background: #fefefe;
+    color: #1c1917;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+  .tier-name {
+    font-size: 1.4rem;
+    font-weight: 400;
+    margin: 0;
+    letter-spacing: -0.005em;
+  }
+  .tier-price {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  .tier-price strong {
+    font-weight: 600;
+  }
+  .tier-price-unit {
+    color: #1c1917;
+  }
+  .tier-price-monthly {
+    color: #78716c;
+    font-size: 0.95rem;
+    margin-left: 0.4rem;
+  }
+  .tier-includes {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .tier-includes li {
+    padding-left: 0;
+    color: #1c1917;
+  }
+  .tier-note {
+    color: #78716c;
+    font-style: italic;
+    margin: 0;
+  }
+  .tier-button {
+    align-self: flex-start;
+    display: inline-block;
+    padding: 0.6rem 1.4rem;
+    background: #1c1917;
+    color: #fefefe;
+    border: 0;
+    border-radius: 2px;
+    font: inherit;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .tier-button:hover {
+    background: #000;
+  }
+</style>
+
+<script>
+  // Only logged-in cards have data-tier-action; non-logged-in cards are
+  // plain anchors and don't need JS.
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-tier-action]');
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const tier = btn.dataset.tierAction;
+      if (!tier) return;
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/communitas/stripe/checkout', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ tier }),
+        });
+        if (res.ok) {
+          const body = (await res.json()) as { url?: string };
+          if (body.url) {
+            window.location.href = body.url;
+            return;
+          }
+        }
+        const errBody = await res.json().catch(() => ({}));
+        const code = (errBody as { code?: string }).code ?? 'unknown';
+        if (code === 'inner_circle_requires_invitation') {
+          alert(
+            'Inner Circle ist nur nach einem persönlichen Aufnahmegespräch mit Tobias zugänglich. Bitte melde dich per E-Mail.',
+          );
+        } else if (code === 'not_configured') {
+          alert('Die Zahlung ist gerade nicht eingerichtet. Bitte versuche es später.');
+        } else {
+          alert('Etwas ist schiefgegangen. Bitte versuche es noch einmal.');
+        }
+      } catch {
+        alert('Verbindung verloren. Bitte versuche es noch einmal.');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  });
+</script>

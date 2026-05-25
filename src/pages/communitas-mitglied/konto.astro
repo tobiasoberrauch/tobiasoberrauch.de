@@ -1,0 +1,282 @@
+---
+/**
+ * /communitas-mitglied/konto — Account page.
+ *
+ * Phase 5 / US3 / T076. Shows: current tier, status, renewal date.
+ * Offers three quiet actions: Pause, Gehen, Konto schließen
+ * (Konto schließen is disabled — depends on Phase 6 Zelle export).
+ *
+ * Governance copy: tier change is once per year, by email.
+ */
+import Base from '../../layouts/Base.astro';
+import { getSession } from '../../lib/communitas/auth';
+import { sql } from '../../lib/communitas/db';
+
+export const prerender = false;
+
+const session = await getSession(Astro.request).catch(() => null);
+
+interface SubscriptionRow {
+  id: number;
+  tier: 'basis' | 'voll' | 'inner_circle';
+  status: 'active' | 'past_due' | 'cancelled' | 'paused' | 'scholarship';
+  yearly_amount_cents: number;
+  current_period_start: Date;
+  current_period_end: Date;
+  cancel_at_period_end: boolean;
+  payment_failure_notified_at: Date | null;
+}
+
+interface MemberRow {
+  display_name: string;
+  email: string;
+}
+
+let member: MemberRow | null = null;
+let subscription: SubscriptionRow | null = null;
+let loadError = '';
+
+if (session) {
+  try {
+    const mrows = await sql<MemberRow[]>`
+      SELECT display_name, email FROM members WHERE id = ${session.memberId} LIMIT 1
+    `;
+    if (mrows.length > 0) member = mrows[0];
+    const srows = await sql<SubscriptionRow[]>`
+      SELECT id, tier, status, yearly_amount_cents,
+             current_period_start, current_period_end,
+             cancel_at_period_end, payment_failure_notified_at
+      FROM subscriptions
+      WHERE member_id = ${session.memberId}
+      ORDER BY created_at DESC
+      LIMIT 1
+    `;
+    if (srows.length > 0) subscription = srows[0];
+  } catch (err) {
+    loadError = (err as Error).message;
+  }
+}
+
+const tierLabels: Record<SubscriptionRow['tier'], string> = {
+  basis: 'Basis (€960 / Jahr)',
+  voll: 'Voll (€3.600 / Jahr)',
+  inner_circle: 'Inner Circle (€18.000 / Jahr)',
+};
+
+const statusLabels: Record<SubscriptionRow['status'], string> = {
+  active: 'aktiv',
+  past_due: 'Zahlung offen',
+  cancelled: 'beendet',
+  paused: 'pausiert',
+  scholarship: 'Stipendium',
+};
+
+function formatGermanDate(d: Date | null | undefined): string {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('de-DE', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+---
+
+<Base
+  title="Communitas Cotidiana — Konto"
+  description="Deine Mitgliedschaft, deine Stufe, deine Verbindlichkeit."
+  locale="de"
+>
+  <article class="konto">
+    {!session && (
+      <section>
+        <h1>Konto</h1>
+        <p>
+          Bitte melde dich an, um dein Konto zu sehen. Wir senden dir einen
+          Anmelde-Link per E-Mail.
+        </p>
+        <p>
+          <a href="/communitas-mitglied/">Zum Anmelde-Formular</a>
+        </p>
+      </section>
+    )}
+
+    {session && !member && (
+      <section>
+        <h1>Konto</h1>
+        <p>Wir konnten dein Profil gerade nicht laden.</p>
+        {loadError && <p class="muted">({loadError})</p>}
+      </section>
+    )}
+
+    {session && member && (
+      <section>
+        <h1>Konto</h1>
+        <p class="hello">Guten Tag, {member.display_name.split(' ')[0]}.</p>
+
+        <h2>Deine Stufe</h2>
+        {subscription ? (
+          <div class="block">
+            <p><strong>Stufe:</strong> {tierLabels[subscription.tier]}</p>
+            <p><strong>Status:</strong> {statusLabels[subscription.status]}</p>
+            <p>
+              <strong>Aktueller Jahreszeitraum:</strong>{' '}
+              {formatGermanDate(subscription.current_period_start)} —{' '}
+              {formatGermanDate(subscription.current_period_end)}
+            </p>
+            {subscription.cancel_at_period_end && (
+              <p class="muted">
+                Deine Mitgliedschaft endet am{' '}
+                {formatGermanDate(subscription.current_period_end)}.
+                Du musst nichts weiter tun.
+              </p>
+            )}
+            {subscription.status === 'past_due' && (
+              <p class="muted">
+                Eine Abbuchung ist nicht durchgegangen. Wir nehmen an, es ist
+                ein technisches Versehen — bitte aktualisiere bei Gelegenheit
+                deine Zahlungsdaten bei Stripe.
+              </p>
+            )}
+          </div>
+        ) : (
+          <p class="muted">Es ist noch keine Mitgliedschaft hinterlegt.</p>
+        )}
+
+        <h2>Stufenwechsel</h2>
+        <p>
+          Stufenwechsel bitte per E-Mail an Tobias, einmal pro Jahr. Wir
+          wechseln langsam, damit der Wechsel etwas bedeutet.
+        </p>
+
+        {subscription && subscription.status === 'active' && (
+          <>
+            <h2>Pause</h2>
+            <p>
+              Wenn du eine Zeit lang nicht zahlen willst, kannst du die
+              Mitgliedschaft pausieren. Die Mails ruhen.
+            </p>
+            <button type="button" id="pause-btn" class="quiet-button">
+              Mitgliedschaft pausieren
+            </button>
+          </>
+        )}
+
+        {subscription &&
+          (subscription.status === 'active' ||
+            subscription.status === 'past_due') &&
+          !subscription.cancel_at_period_end && (
+          <>
+            <h2>Gehen</h2>
+            <p>
+              Wenn du gehen willst, klicke hier — einmal genügt. Deine
+              Mitgliedschaft endet zum Ablauf der laufenden Periode.
+            </p>
+            <button type="button" id="cancel-btn" class="quiet-button">
+              Mitgliedschaft beenden
+            </button>
+          </>
+        )}
+
+        <h2>Konto schließen</h2>
+        <p class="muted">
+          Schließen heißt: vollständiger Datenexport plus harte Löschung.
+          Phase 6 (Zelle) muss erst stehen — derzeit nicht aktiv.
+        </p>
+        <button type="button" class="quiet-button" disabled>
+          Konto schließen (bald)
+        </button>
+      </section>
+    )}
+  </article>
+
+  <style>
+    .konto {
+      max-width: 38rem;
+      margin: 3rem auto;
+      padding: 0 1.25rem;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: #1c1917;
+      line-height: 1.6;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 400;
+      margin: 0 0 1.5rem;
+    }
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 400;
+      font-style: italic;
+      color: #78716c;
+      margin: 2rem 0 0.6rem;
+    }
+    .hello {
+      margin: 0 0 2rem;
+    }
+    .block p {
+      margin: 0.4em 0;
+    }
+    .muted {
+      color: #78716c;
+    }
+    .quiet-button {
+      display: inline-block;
+      padding: 0.55rem 1.2rem;
+      background: #1c1917;
+      color: #fefefe;
+      border: 0;
+      border-radius: 2px;
+      font: inherit;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    .quiet-button:hover:not(:disabled) {
+      background: #000;
+    }
+    .quiet-button:disabled {
+      background: #d6d3d1;
+      color: #78716c;
+      cursor: not-allowed;
+    }
+  </style>
+
+  <script>
+    const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement | null;
+    pauseBtn?.addEventListener('click', async () => {
+      pauseBtn.disabled = true;
+      try {
+        const res = await fetch('/api/communitas/subscription/pause', {
+          method: 'POST',
+        });
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          alert('Pause hat nicht geklappt. Bitte versuche es später noch einmal.');
+        }
+      } catch {
+        alert('Verbindung verloren.');
+      } finally {
+        pauseBtn.disabled = false;
+      }
+    });
+
+    const cancelBtn = document.getElementById('cancel-btn') as HTMLButtonElement | null;
+    cancelBtn?.addEventListener('click', async () => {
+      cancelBtn.disabled = true;
+      try {
+        const res = await fetch('/api/communitas/subscription/cancel', {
+          method: 'POST',
+        });
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          alert('Bitte versuche es später noch einmal.');
+        }
+      } catch {
+        alert('Verbindung verloren.');
+      } finally {
+        cancelBtn.disabled = false;
+      }
+    });
+  </script>
+</Base>

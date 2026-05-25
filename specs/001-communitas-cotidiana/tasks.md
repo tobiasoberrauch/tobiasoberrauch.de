@@ -169,6 +169,10 @@ Erweiterung der bestehenden Astro-Site. Alle Pfade relativ zur Repo-Wurzel:
 - [ ] T082 [P] [US3] Write unit test `tests/communitas/unit/payment-state-machine.test.ts`: cover transitions active → past_due → cancelled and active → paused → active; no transition produces a re-engagement event
 - [ ] T083 [US3] Verify in the Stripe dashboard that the German DPA is signed and SEPA Direct Debit is enabled (operational checklist, not code) — document in `specs/001-communitas-cotidiana/operational-checklist.md`
 
+**Phase 5 note**: the renewal-reminder cron itself is NOT in scope of Phase 5. Template 11 (`renewal-reminder.ts`) and the one-click cancel-token flow (`cancel-token.ts` + `/api/communitas/subscription/cancel?token=…`) are implemented; the cron that selects subscriptions with `current_period_end - 28d == today` and sends the reminder lands in Phase 8 polish. The token format is HMAC-signed and stateless, so the cron will work the day it is added.
+
+**Phase 5 note (NORDSTERN)**: NORDSTERN tiers (€22.500 / €75.000 / €180.000+ per Spec FR-017) are a separate product line. Phase 5 does NOT create Stripe products for them. The webhook contains a code-comment placeholder for the NORDSTERN-share scholarship insert; when productised, add `STRIPE_PRICE_NORDSTERN_*` env vars and the `tier === 'nordstern_…'` branch.
+
 **Checkpoint**: Zahlungsfluss funktioniert. Stipendien-Cron triggert jährlich. Wirtschaftsbasis (SC-001 ≥ 40 zahlende Mitglieder in 90 Tagen) ist messbar.
 
 ---

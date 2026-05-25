@@ -1,0 +1,110 @@
+---
+/**
+ * /communitas/preise — three quiet tier cards.
+ *
+ * Phase 5 / US3 / T077 (companion). Public page; no auth check. The
+ * TierCard component decides whether to show "Wählen" (logged-in) or
+ * "Sich bewerben" (logged-out / public). For Phase 5 we treat every
+ * visitor as logged-out here — this page is reachable from the public
+ * site and from search engines, so we don't probe for a session.
+ *
+ * NO comparison table, NO "Most Popular" badge, NO discount banner.
+ */
+import Base from '../../layouts/Base.astro';
+import TierCard from '../../components/communitas/TierCard.astro';
+---
+
+<Base
+  title="Communitas Cotidiana — Stufen und Preise"
+  description="Drei Stufen der Mitgliedschaft. Basis €960/Jahr, Voll €3.600/Jahr, Inner Circle €18.000/Jahr nach Aufnahmegespräch. Keine Vergleichstabelle, kein Upsell."
+  locale="de"
+>
+  <article class="preise-root">
+    <header class="hero">
+      <h1>Stufen</h1>
+      <p class="kicker">
+        Eine jährliche Verbindlichkeit. Keine Quartals-Pakete, kein Probemonat.
+      </p>
+    </header>
+
+    <p class="intro">
+      Die Stufe markiert die Verbindlichkeit — sie ist der ethische, nicht der
+      wirtschaftliche Hebel. Wer mehr trägt, trägt für andere mit. Inner Circle
+      und NORDSTERN speisen den anonymen Stipendien-Topf, aus dem zwölf stille
+      Voll-Mitgliedschaften pro Jahr vergeben werden.
+    </p>
+
+    <section class="tiers" aria-label="Stufen">
+      <TierCard tier="basis" />
+      <TierCard tier="voll" />
+      <TierCard tier="inner_circle" />
+    </section>
+
+    <section class="governance">
+      <h2>Stufenwechsel</h2>
+      <p>
+        Einmal pro Jahr, formlos per E-Mail an Tobias. Wir wechseln langsam,
+        damit der Wechsel etwas bedeutet.
+      </p>
+    </section>
+
+    <p class="back">
+      <a href="/communitas/">← Zurück zur Schwelle</a>
+    </p>
+  </article>
+
+  <style is:global>
+    @import '../../styles/communitas.css';
+  </style>
+
+  <style>
+    .preise-root {
+      max-width: 56rem;
+      margin: 3rem auto;
+      padding: 0 1.25rem;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: #1c1917;
+      line-height: 1.6;
+    }
+    .hero h1 {
+      font-size: 2.2rem;
+      font-weight: 400;
+      margin: 0 0 0.4rem;
+    }
+    .hero .kicker {
+      color: #78716c;
+      font-style: italic;
+      margin: 0 0 2.5rem;
+    }
+    .intro {
+      max-width: 38rem;
+      margin: 0 auto 3rem;
+    }
+    .tiers {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+      gap: 1.25rem;
+      margin: 2rem 0;
+    }
+    .governance {
+      max-width: 38rem;
+      margin: 3rem auto 0;
+    }
+    .governance h2 {
+      font-size: 1.2rem;
+      font-weight: 400;
+      font-style: italic;
+      color: #78716c;
+      margin: 0 0 0.75rem;
+    }
+    .back {
+      max-width: 38rem;
+      margin: 3rem auto 0;
+    }
+    .back a {
+      color: #1c1917;
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+    }
+  </style>
+</Base>
