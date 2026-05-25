@@ -162,3 +162,84 @@ pages do not). `Base.astro` enforces this via `isMemberArea` check.
 2. Create a separate audience "Communitas — Mitglieder" → record its UUID as
    `RESEND_COMMUNITAS_AUDIENCE_ID` (kept distinct from the public newsletter
    audience).
+
+## Phase 7 (User Story 5 — Der Briefkreis)
+
+### Migration 010
+
+Apply via:
+
+```bash
+COMMUNITAS_DATABASE_URL=<url> npm run communitas:migrate
+```
+
+Adds `kreise.symkey_salt BYTEA`. Idempotent — re-running on an already-
+migrated DB is safe.
+
+### Workflow — creating a kreis (Tobias or a Begleiter)
+
+1. `POST /api/communitas/admin/kreise` with `{ name, introductory_question,
+   member_ids: [3..5 voll/inner_circle members] }`.
+2. The server generates a 16-byte Argon2id salt (persisted) plus a 6-word
+   code (NEVER persisted — only embedded in outgoing mails).
+3. Each member receives template 8 ("kreis-introduction") individually:
+   - the kreis name
+   - the introductory question
+   - the OTHER members' first names (no emails are shared)
+   - the 6-word code, displayed in a monospaced block
+   - a link to `/communitas-mitglied/kreis/<id>`
+4. Each member opens the link, types the 6 words, and the browser derives
+   the AES-256 key via Argon2id and stores it in IndexedDB under slot
+   `kreis-<id>`.
+5. Kreis goes live. Members write letters; polling refreshes every 5
+   minutes. No real-time, no reactions, no read receipts.
+
+### Adding a member later
+
+`POST /api/communitas/admin/kreise/<id>/add-member` with `{ member_id }`.
+
+The new member is inserted with `joined_at = now()`. The `/messages`
+endpoint clamps the `since` filter to the caller's `joined_at`, so the
+new member only sees letters written from now forward
+(read-forward-only).
+
+They receive a quieter intro mail that asks them to obtain the code from
+the existing members. The server does NOT have the code; if no existing
+member can pass it on, the admin must call `/rotate-code` (see below) to
+mint a fresh code for everyone — at the cost of making past letters
+unreadable.
+
+### Removing a member
+
+`POST /api/communitas/admin/kreise/<id>/remove-member` with `{ member_id }`.
+
+Soft-removes via `kreis_members.left_at = now()`. The code is NOT
+rotated automatically. Remaining members receive a quiet notice. If the
+remaining members want to lock the departed member out of future
+letters, call `/rotate-code`.
+
+### Rotating the code
+
+`POST /api/communitas/admin/kreise/<id>/rotate-code`. Generates a new
+salt + a new 6-word code, emails everyone, and effectively restarts the
+kreis. Past ciphertext becomes unreadable — the UI displays „Dieser
+Brief konnte nicht entschlüsselt werden." for those rows.
+
+### Resend templates
+
+Template 8 (`kreis-introduction.ts`) is sent on kreis create and on
+`rotate-code`. No additional Resend configuration is required beyond the
+Phase-2/3 domain setup.
+
+### Phase-7 known limitations
+
+- The admin surface (UI) for kreis management is NOT in scope here.
+  Tobias and the Begleiter operate the endpoints via direct API calls
+  (curl) for now. A polished admin page is Phase 8 work.
+- The 6-word code is 54 raw bits of entropy. Argon2id (64 MiB, 3 iter,
+  4-way) hardens it; the server-blind model means an offline brute-force
+  attack would require either a server compromise or a member's
+  IndexedDB. Documented in `wordlist-entropy.test.ts`.
+- Loss-of-code recovery exists only via `rotate-code`, which discards
+  all prior ciphertext. This is intentional: the alternative — server
+  recovery of the key — would break server-blindness.

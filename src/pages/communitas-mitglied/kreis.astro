@@ -1,0 +1,117 @@
+---
+/**
+ * /communitas-mitglied/kreis — Phase 7 / US5 / T098.
+ *
+ * Sober landing page that lists the kreise the member belongs to.
+ * If exactly one, redirect; if multiple, show a list; if none, show
+ * the quiet "noch keinem Kreis zugeteilt" message.
+ */
+import Base from '../../layouts/Base.astro';
+import { getSession } from '../../lib/communitas/auth';
+import { sql } from '../../lib/communitas/db';
+
+export const prerender = false;
+
+const session = await getSession(Astro.request).catch(() => null);
+
+interface KreisListRow {
+  id: number;
+  name: string;
+}
+
+let kreise: KreisListRow[] = [];
+if (session) {
+  try {
+    kreise = await sql<KreisListRow[]>`
+      SELECT k.id, k.name
+      FROM kreise k
+      JOIN kreis_members km ON km.kreis_id = k.id
+      WHERE km.member_id = ${session.memberId}
+        AND km.left_at IS NULL
+        AND k.archived_at IS NULL
+      ORDER BY k.created_at DESC
+    `;
+  } catch (err) {
+    console.warn('[kreis.astro] db error', (err as Error).message);
+  }
+}
+
+if (session && kreise.length === 1) {
+  return Astro.redirect(`/communitas-mitglied/kreis/${kreise[0].id}`);
+}
+---
+
+<Base
+  title="Communitas Cotidiana — Briefkreis"
+  description="Drei bis fünf Mitglieder, ein gemeinsamer Schlüssel, ein Briefwechsel."
+  locale="de"
+>
+  <article class="kreis">
+    {!session && (
+      <section>
+        <h1>Briefkreis</h1>
+        <p>Bitte melde dich an. Der Briefkreis ist nur eingeloggten Mitgliedern zugänglich.</p>
+        <p><a href="/communitas-mitglied/">Zum Anmelde-Formular</a></p>
+      </section>
+    )}
+
+    {session && kreise.length === 0 && (
+      <section>
+        <h1>Briefkreis</h1>
+        <p class="lede">
+          Du bist noch keinem Kreis zugeteilt. Tobias oder ein Begleiter
+          ordnet dich nach dem Aufnahmegespräch zu.
+        </p>
+      </section>
+    )}
+
+    {session && kreise.length > 1 && (
+      <section>
+        <h1>Deine Kreise</h1>
+        <ul class="kreise-list">
+          {kreise.map((k) => (
+            <li>
+              <a href={`/communitas-mitglied/kreis/${k.id}`}>{k.name}</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </article>
+
+  <style>
+    .kreis {
+      max-width: 42rem;
+      margin: 2.5rem auto;
+      padding: 0 1.25rem;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: #1c1917;
+      line-height: 1.6;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 400;
+      margin: 0 0 1rem;
+    }
+    .lede {
+      color: #44403c;
+      max-width: 38rem;
+    }
+    .kreise-list {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0 0;
+    }
+    .kreise-list li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #e7e5e4;
+    }
+    .kreise-list a {
+      color: #1c1917;
+      text-decoration: none;
+    }
+    .kreise-list a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</Base>

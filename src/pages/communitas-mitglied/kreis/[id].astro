@@ -1,0 +1,106 @@
+---
+/**
+ * /communitas-mitglied/kreis/[id] — Phase 7 / US5 / T098.
+ *
+ * Membership-gated shell for a single Briefkreis. The actual UI (code
+ * input or letter view) is a `client:load` React island; the server
+ * has no key and never sees plaintext.
+ */
+import Base from '../../../layouts/Base.astro';
+import KreisIsland from '../../../components/communitas/KreisIsland';
+import { getSession } from '../../../lib/communitas/auth';
+import { sql } from '../../../lib/communitas/db';
+
+export const prerender = false;
+
+const session = await getSession(Astro.request).catch(() => null);
+const kreisIdRaw = Astro.params.id ?? '';
+const kreisId = Number(kreisIdRaw);
+
+interface MemberRow {
+  id: number;
+  display_name: string;
+}
+
+let member: MemberRow | null = null;
+let isMember = false;
+let kreisName = '';
+
+if (session && Number.isFinite(kreisId) && kreisId > 0) {
+  try {
+    const rows = await sql<MemberRow[]>`
+      SELECT id, display_name FROM members WHERE id = ${session.memberId} LIMIT 1
+    `;
+    if (rows.length > 0) member = rows[0];
+
+    const mem = await sql<{ left_at: Date | string | null }[]>`
+      SELECT left_at FROM kreis_members
+      WHERE kreis_id = ${kreisId} AND member_id = ${session.memberId} LIMIT 1
+    `;
+    if (mem.length > 0 && mem[0].left_at == null) {
+      isMember = true;
+      const k = await sql<{ name: string }[]>`
+        SELECT name FROM kreise WHERE id = ${kreisId} AND archived_at IS NULL LIMIT 1
+      `;
+      if (k.length > 0) kreisName = k[0].name;
+    }
+  } catch (err) {
+    console.warn('[kreis/[id].astro] db error', (err as Error).message);
+  }
+}
+---
+
+<Base
+  title={kreisName ? `Communitas — ${kreisName}` : 'Communitas — Briefkreis'}
+  description="Briefkreis."
+  locale="de"
+>
+  <article class="kreis-shell">
+    {!session && (
+      <section>
+        <h1>Briefkreis</h1>
+        <p>Bitte melde dich an.</p>
+        <p><a href="/communitas-mitglied/">Zum Anmelde-Formular</a></p>
+      </section>
+    )}
+
+    {session && !member && (
+      <section>
+        <h1>Briefkreis</h1>
+        <p>Wir konnten dein Profil gerade nicht laden.</p>
+      </section>
+    )}
+
+    {session && member && !isMember && (
+      <section>
+        <h1>Briefkreis</h1>
+        <p>Du gehörst diesem Kreis nicht an.</p>
+        <p><a href="/communitas-mitglied/kreis">Zur Übersicht</a></p>
+      </section>
+    )}
+
+    {session && member && isMember && (
+      <KreisIsland
+        client:load
+        kreisId={kreisId}
+        currentMemberId={member.id}
+        displayName={member.display_name}
+      />
+    )}
+  </article>
+
+  <style>
+    .kreis-shell {
+      max-width: 64rem;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: #1c1917;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 400;
+      margin: 2rem 0 1rem;
+    }
+  </style>
+</Base>
