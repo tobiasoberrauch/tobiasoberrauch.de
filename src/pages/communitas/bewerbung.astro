@@ -1,0 +1,64 @@
+---
+import Base from '../../layouts/Base.astro';
+import ApplicationForm from '../../components/communitas/ApplicationForm.astro';
+---
+
+<Base
+  title="Bewerbung"
+  description="Bewerbung zur Communitas Cotidiana — drei Felder, eine Frage, eine Antwort innerhalb von vierzehn Tagen."
+  locale="de"
+>
+  <div class="communitas-root communitas-reveal bewerbung-page">
+    <article class="framing">
+      <h1>Bewerbung</h1>
+
+      <p>
+        Drei kleine Felder. Eine Frage, kein Erfolgsbericht. Du musst dich nicht
+        gut verkaufen — wir suchen kein Profil.
+      </p>
+
+      <p class="reminder">
+        Erinnerung: Dies ist keine Therapie, keine Religion, keine Schule. Wenn
+        du in akuter seelischer Not bist, geh bitte zu einem Ort mit Hand und
+        Stimme — siehe <a href="/communitas/stille/">Eine andere Tür</a>.
+      </p>
+    </article>
+
+    <ApplicationForm />
+  </div>
+
+  <style is:global>
+    @import '../../styles/communitas.css';
+  </style>
+
+  <style>
+    .bewerbung-page {
+      padding: 2rem 1.25rem 4rem;
+    }
+    .framing {
+      max-width: 38rem;
+      margin: 0 auto 2.5rem;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: #1c1917;
+      line-height: 1.6;
+    }
+    .framing h1 {
+      font-size: 1.8rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      margin: 0 0 1.5rem;
+    }
+    .framing p {
+      margin: 0 0 1em;
+    }
+    .reminder {
+      color: #78716c;
+      font-size: 0.95rem;
+      border-left: 2px solid #d6d3d1;
+      padding-left: 0.85rem;
+    }
+    .reminder a {
+      color: #78716c;
+    }
+  </style>
+</Base>

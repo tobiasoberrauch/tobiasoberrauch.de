@@ -1,0 +1,46 @@
+---
+/**
+ * Glossar.astro — alphabetical definition list of Communitas vocabulary.
+ *
+ * Per spec FR-003: a flat list, no search, no filter. Term in italic
+ * (handled in CSS via `dt`), definition on the following line.
+ */
+import { renderGlossar } from '../../lib/communitas/render-md';
+
+const sources = import.meta.glob('../../lib/communitas/content/glossar.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+const raw = Object.values(sources)[0] ?? '';
+const html = renderGlossar(raw);
+---
+
+<section class="glossar" set:html={html}></section>
+
+<style>
+  .glossar {
+    max-width: 38rem;
+    margin: 0 auto;
+    font-family: var(--c-font-serif, Georgia, 'Times New Roman', Times, serif);
+    color: var(--c-ink, #1c1917);
+    line-height: 1.6;
+  }
+  .glossar :global(h1) {
+    font-size: 1.8rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    margin: 0 0 2rem;
+  }
+  .glossar :global(dl) {
+    margin: 0;
+  }
+  .glossar :global(dt) {
+    font-weight: 600;
+    margin-top: 1.5em;
+  }
+  .glossar :global(dd) {
+    margin: 0.2em 0 0;
+  }
+</style>

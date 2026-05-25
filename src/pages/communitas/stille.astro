@@ -1,0 +1,77 @@
+---
+import Base from '../../layouts/Base.astro';
+import { renderMarkdown } from '../../lib/communitas/render-md';
+
+const sources = import.meta.glob('../../lib/communitas/content/stille.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+const raw = Object.values(sources)[0] ?? '';
+const html = renderMarkdown(raw);
+---
+
+<Base
+  title="Eine andere Tür"
+  description="Wenn du in akuter seelischer Not bist: Anlaufstellen, die jetzt da sind. Die Communitas Cotidiana ersetzt keine Therapie."
+  locale="de"
+>
+  <div class="communitas-root communitas-reveal stille-page">
+    <article set:html={html}></article>
+
+    <p class="back">
+      <a href="/communitas/">← Zurück</a>
+    </p>
+  </div>
+
+  <style is:global>
+    @import '../../styles/communitas.css';
+  </style>
+
+  <style>
+    .stille-page {
+      padding: 2rem 1.25rem 4rem;
+    }
+    .stille-page article {
+      max-width: 38rem;
+      margin: 0 auto;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: #1c1917;
+      line-height: 1.6;
+    }
+    .stille-page article :global(h1) {
+      font-size: 1.8rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      margin: 0 0 2rem;
+    }
+    .stille-page article :global(h2) {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-top: 2.5em;
+    }
+    .stille-page article :global(p) {
+      margin: 0 0 1em;
+    }
+    .stille-page article :global(ul) {
+      margin: 0 0 1em;
+      padding-left: 1.4em;
+    }
+    .stille-page article :global(li) {
+      margin: 0.2em 0;
+    }
+    .stille-page article :global(a) {
+      color: #1c1917;
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+    }
+    .back {
+      max-width: 38rem;
+      margin: 3rem auto 0;
+      color: #78716c;
+    }
+    .back a {
+      color: #78716c;
+    }
+  </style>
+</Base>

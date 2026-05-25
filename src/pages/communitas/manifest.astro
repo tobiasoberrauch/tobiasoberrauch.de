@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import Manifest from '../../components/communitas/Manifest.astro';
+---
+
+<Base
+  title="Manifest"
+  description="Das Manifest der Communitas Cotidiana — wer wir sind, wer wir nicht sind, was die einzige Verpflichtung ist."
+  locale="de"
+>
+  <div class="communitas-root communitas-reveal manifest-page">
+    <Manifest />
+
+    <p class="back">
+      <a href="/communitas/">← Zurück</a>
+    </p>
+  </div>
+
+  <style is:global>
+    @import '../../styles/communitas.css';
+  </style>
+
+  <style>
+    .manifest-page {
+      padding: 2rem 1.25rem 4rem;
+    }
+    .back {
+      max-width: 38rem;
+      margin: 3rem auto 0;
+      color: #78716c;
+    }
+    .back a {
+      color: #78716c;
+    }
+  </style>
+</Base>

@@ -1,0 +1,267 @@
+---
+/**
+ * ApplicationForm.astro — the only point of entry into the Communitas.
+ *
+ * Per spec FR-006: three required fields (name, email, question), one
+ * optional field (letter_to_self), tier selection, consent checkbox.
+ *
+ * Progressive enhancement:
+ *  - the <form> posts to /api/communitas/apply with method=POST and
+ *    enctype=application/x-www-form-urlencoded, so it works without JS;
+ *  - JS, when available, intercepts and submits JSON, surfacing inline
+ *    error messages.
+ */
+---
+
+<form
+  class="application-form communitas-reveal"
+  action="/api/communitas/apply"
+  method="POST"
+  enctype="application/x-www-form-urlencoded"
+  novalidate
+>
+  <p class="form-intro">
+    Drei Felder. Eine Frage. Ein Brief, der nicht gelesen wird. Wir melden uns
+    innerhalb von vierzehn Tagen.
+  </p>
+
+  <div class="field">
+    <label for="app-name">Name</label>
+    <input
+      id="app-name"
+      name="name"
+      type="text"
+      required
+      minlength="1"
+      maxlength="120"
+      autocomplete="name"
+    />
+  </div>
+
+  <div class="field">
+    <label for="app-email">E-Mail</label>
+    <input
+      id="app-email"
+      name="email"
+      type="email"
+      required
+      maxlength="254"
+      autocomplete="email"
+    />
+  </div>
+
+  <div class="field">
+    <label for="app-question">Deine Frage</label>
+    <p class="hint">Nicht: ein Lebenslauf. Nicht: ein Erfolgsbericht. Eine Frage.</p>
+    <textarea
+      id="app-question"
+      name="question"
+      required
+      maxlength="2000"
+      rows="5"
+    ></textarea>
+  </div>
+
+  <div class="field">
+    <label for="app-letter">Brief an dich selbst (freiwillig)</label>
+    <p class="hint">
+      Wird nicht gelesen, wird in einem Jahr zurückgesendet.
+    </p>
+    <textarea
+      id="app-letter"
+      name="letter_to_self"
+      maxlength="10000"
+      rows="6"
+    ></textarea>
+  </div>
+
+  <fieldset class="field">
+    <legend>Stufe</legend>
+    <label class="radio-row">
+      <input type="radio" name="desired_tier" value="basis" checked />
+      <span>Basis · €960 / Jahr</span>
+    </label>
+    <label class="radio-row">
+      <input type="radio" name="desired_tier" value="voll" />
+      <span>Voll · €3.600 / Jahr</span>
+    </label>
+    <label class="radio-row">
+      <input type="radio" name="desired_tier" value="inner_circle" />
+      <span>Inner Circle · €18.000 / Jahr (nach gesondertem Gespräch)</span>
+    </label>
+  </fieldset>
+
+  <div class="field consent">
+    <label class="checkbox-row">
+      <input type="checkbox" name="consent" value="true" required />
+      <span>Ich verstehe, dass die Communitas keine Therapie ersetzt.</span>
+    </label>
+  </div>
+
+  <div class="actions">
+    <button type="submit">Absenden</button>
+  </div>
+
+  <p class="error-message" data-error hidden role="alert"></p>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('.application-form');
+  const errorEl = form?.querySelector<HTMLElement>('[data-error]');
+
+  function setError(msg: string) {
+    if (!errorEl) return;
+    errorEl.textContent = msg;
+    errorEl.hidden = false;
+  }
+
+  function clearError() {
+    if (!errorEl) return;
+    errorEl.textContent = '';
+    errorEl.hidden = true;
+  }
+
+  form?.addEventListener('submit', async (evt) => {
+    evt.preventDefault();
+    clearError();
+    if (!form) return;
+
+    const fd = new FormData(form);
+    const body = {
+      name: String(fd.get('name') ?? '').trim(),
+      email: String(fd.get('email') ?? '').trim(),
+      question: String(fd.get('question') ?? '').trim(),
+      letter_to_self: String(fd.get('letter_to_self') ?? ''),
+      desired_tier: String(fd.get('desired_tier') ?? 'basis'),
+      consent: fd.get('consent') === 'true' || fd.get('consent') === 'on',
+    };
+
+    const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      const res = await fetch('/api/communitas/apply', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        window.location.assign('/communitas/danke/');
+        return;
+      }
+      let detail: { code?: string; field?: string; message?: string } = {};
+      try {
+        detail = await res.json();
+      } catch {
+        /* ignore */
+      }
+      if (res.status === 409 && detail.code === 'already_applied') {
+        setError(
+          'Eine Bewerbung mit dieser E-Mail liegt uns bereits vor. Wir melden uns.',
+        );
+      } else if (res.status === 400 && detail.field) {
+        setError(`Bitte prüfe das Feld „${detail.field}".`);
+      } else {
+        setError('Etwas hat nicht geklappt. Bitte versuche es später erneut.');
+      }
+    } catch {
+      setError('Verbindung fehlgeschlagen. Bitte versuche es später erneut.');
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+</script>
+
+<style>
+  .application-form {
+    max-width: 38rem;
+    margin: 0 auto;
+    font-family: var(--c-font-serif, Georgia, 'Times New Roman', Times, serif);
+    color: var(--c-ink, #1c1917);
+    line-height: 1.6;
+  }
+  .form-intro {
+    color: var(--c-muted, #78716c);
+    margin: 0 0 2rem;
+  }
+  .field {
+    margin: 0 0 1.5rem;
+    border: 0;
+    padding: 0;
+  }
+  fieldset.field legend {
+    padding: 0;
+    margin: 0 0 0.5rem;
+    font-weight: 400;
+  }
+  label {
+    display: block;
+    font-weight: 600;
+    margin: 0 0 0.35rem;
+  }
+  .hint {
+    color: var(--c-muted, #78716c);
+    font-size: 0.9rem;
+    margin: 0 0 0.5rem;
+  }
+  input[type='text'],
+  input[type='email'],
+  textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--c-rule, #d6d3d1);
+    background: var(--c-paper, #fefefe);
+    color: var(--c-ink, #1c1917);
+    font: inherit;
+    border-radius: 2px;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 6em;
+  }
+  input:focus,
+  textarea:focus {
+    outline: 2px solid var(--c-ink, #1c1917);
+    outline-offset: 1px;
+  }
+  .radio-row,
+  .checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-weight: 400;
+    margin: 0.25rem 0;
+    cursor: pointer;
+  }
+  .radio-row input,
+  .checkbox-row input {
+    margin-top: 0.3em;
+    flex-shrink: 0;
+  }
+  .actions {
+    margin-top: 2rem;
+  }
+  button[type='submit'] {
+    background: var(--c-ink, #1c1917);
+    color: var(--c-paper, #fefefe);
+    border: 0;
+    padding: 0.7rem 1.5rem;
+    font: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  button[type='submit']:hover {
+    background: #000;
+  }
+  button[type='submit']:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+  .error-message {
+    margin-top: 1.5rem;
+    color: #991b1b;
+    font-size: 0.95rem;
+  }
+</style>
