@@ -1,0 +1,256 @@
+---
+/**
+ * Admin UI — application list with status buttons.
+ *
+ * Server-rendered (`prerender = false`). Reads the DB directly rather than
+ * round-tripping through the JSON endpoint. Status changes POST to the
+ * admin PATCH endpoint via JS.
+ *
+ * Phase-3 limitation: `requireCompanion()` 403s until magic-link login is
+ * wired in Phase 4. In production this page will show 403 until then.
+ */
+import Base from '../../../layouts/Base.astro';
+import { sql } from '../../../lib/communitas/db';
+import { requireCompanion, AuthError } from '../../../lib/communitas/auth';
+
+export const prerender = false;
+
+interface AppRow {
+  id: number;
+  applicant_name: string;
+  applicant_email: string;
+  question_text: string;
+  letter_to_self_present: boolean;
+  desired_tier: string;
+  status: string;
+  received_at: Date;
+  ip_country: string | null;
+}
+
+let rows: AppRow[] = [];
+let authError: number | null = null;
+let dbError: string | null = null;
+
+try {
+  await requireCompanion(Astro.request);
+  try {
+    rows = await sql<AppRow[]>`
+      SELECT
+        id,
+        applicant_name,
+        applicant_email,
+        question_text,
+        (letter_to_self IS NOT NULL) AS letter_to_self_present,
+        desired_tier,
+        status,
+        received_at,
+        ip_country
+      FROM applications
+      ORDER BY received_at DESC
+      LIMIT 100
+    `;
+  } catch (err) {
+    dbError = (err as Error).message;
+  }
+} catch (err) {
+  if (err instanceof AuthError) {
+    authError = err.status;
+    Astro.response.status = err.status;
+  } else {
+    throw err;
+  }
+}
+
+function excerpt(text: string, n = 220): string {
+  const t = text.replace(/\s+/g, ' ').trim();
+  return t.length <= n ? t : t.slice(0, n - 1) + '…';
+}
+
+function germanDate(d: Date | string): string {
+  const date = typeof d === 'string' ? new Date(d) : d;
+  return date.toLocaleString('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+---
+
+<Base title="Bewerbungen" description="Communitas — Bewerbungen" locale="de" noindex={true}>
+  <div class="admin-page">
+    <h1>Bewerbungen</h1>
+
+    {authError === 401 && (
+      <p class="notice">
+        Du bist nicht eingeloggt. Magic-Link-Login wird in Phase 4 verdrahtet.
+      </p>
+    )}
+
+    {authError === 403 && (
+      <p class="notice">
+        Zugang verweigert. Diese Seite ist Begleitern und dem Gründer
+        vorbehalten.
+      </p>
+    )}
+
+    {!authError && dbError && (
+      <p class="notice">
+        Datenbank nicht erreichbar: <code>{dbError}</code>
+      </p>
+    )}
+
+    {!authError && !dbError && rows.length === 0 && (
+      <p class="notice">Es liegen keine Bewerbungen vor.</p>
+    )}
+
+    {!authError && !dbError && rows.length > 0 && (
+      <ul class="applications">
+        {rows.map((r) => (
+          <li class="application" data-id={r.id}>
+            <header>
+              <strong>{r.applicant_name}</strong>
+              <span class="email">&lt;{r.applicant_email}&gt;</span>
+              <span class={`status status-${r.status}`}>{r.status}</span>
+            </header>
+            <p class="meta">
+              {germanDate(r.received_at)} · Stufe: {r.desired_tier}
+              {r.ip_country ? ` · ${r.ip_country.toUpperCase()}` : ''}
+              {r.letter_to_self_present ? ' · Brief hinterlegt' : ''}
+            </p>
+            <blockquote>{excerpt(r.question_text)}</blockquote>
+            {(r.status === 'received' || r.status === 'in_conversation') && (
+              <div class="actions">
+                {r.status === 'received' && (
+                  <button data-action="in_conversation" data-id={r.id}>
+                    In Gespräch
+                  </button>
+                )}
+                {r.status === 'in_conversation' && (
+                  <button data-action="accepted" data-id={r.id}>
+                    Annehmen
+                  </button>
+                )}
+                <button data-action="declined" data-id={r.id}>
+                  Ablehnen
+                </button>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+
+  <script>
+    document.querySelectorAll<HTMLButtonElement>('button[data-action]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+        if (!action || !id) return;
+        btn.disabled = true;
+        try {
+          const res = await fetch(`/api/communitas/admin/applications/${id}`, {
+            method: 'PATCH',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ status: action }),
+          });
+          if (res.ok) {
+            window.location.reload();
+          } else {
+            alert(`Fehler: ${res.status}`);
+            btn.disabled = false;
+          }
+        } catch (err) {
+          alert(`Verbindungsfehler: ${(err as Error).message}`);
+          btn.disabled = false;
+        }
+      });
+    });
+  </script>
+
+  <style>
+    .admin-page {
+      max-width: 60rem;
+      margin: 2rem auto;
+      padding: 0 1.25rem 4rem;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: #1c1917;
+      background: #fefefe;
+    }
+    .admin-page h1 {
+      font-size: 1.8rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      margin: 0 0 2rem;
+    }
+    .notice {
+      color: #78716c;
+      font-style: italic;
+    }
+    .applications {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .application {
+      border-top: 1px solid #d6d3d1;
+      padding: 1.5rem 0;
+    }
+    .application header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      align-items: baseline;
+    }
+    .email {
+      color: #78716c;
+      font-size: 0.9rem;
+    }
+    .status {
+      font-size: 0.8rem;
+      padding: 0.1rem 0.5rem;
+      border: 1px solid #d6d3d1;
+      border-radius: 2px;
+      color: #78716c;
+    }
+    .status-accepted {
+      border-color: #1c1917;
+      color: #1c1917;
+    }
+    .meta {
+      color: #78716c;
+      font-size: 0.85rem;
+      margin: 0.3rem 0 0.8rem;
+    }
+    blockquote {
+      margin: 0 0 1rem;
+      padding-left: 1em;
+      border-left: 2px solid #d6d3d1;
+      white-space: pre-wrap;
+    }
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .actions button {
+      background: #fefefe;
+      color: #1c1917;
+      border: 1px solid #1c1917;
+      padding: 0.4rem 0.9rem;
+      font: inherit;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .actions button:hover {
+      background: #1c1917;
+      color: #fefefe;
+    }
+    .actions button:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+  </style>
+</Base>

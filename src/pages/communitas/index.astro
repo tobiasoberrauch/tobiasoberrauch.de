@@ -1,0 +1,117 @@
+---
+import Base from '../../layouts/Base.astro';
+import { renderMarkdown, firstParagraphs } from '../../lib/communitas/render-md';
+
+const sources = import.meta.glob('../../lib/communitas/content/manifesto.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+const raw = Object.values(sources)[0] ?? '';
+const excerpt = firstParagraphs(raw, 2);
+void renderMarkdown;
+---
+
+<Base
+  title="Communitas Cotidiana"
+  description="Eine philosophisch-kontemplative Versammlung. Drei Mails am Tag, ein Vollmond-Brief im Monat, eine Stille Versammlung. Keine Therapie, keine Religion, keine Schule."
+  locale="de"
+>
+  <article class="communitas-root communitas-landing communitas-reveal">
+    <header class="hero">
+      <h1>Communitas Cotidiana</h1>
+      <p class="kicker">Eine Versammlung in Wiederkehr.</p>
+    </header>
+
+    <section class="excerpt" set:html={excerpt}></section>
+
+    <p class="more">
+      <a href="/communitas/manifest/">Das ganze Manifest lesen →</a>
+    </p>
+
+    <hr />
+
+    <nav class="links" aria-label="Communitas">
+      <ul>
+        <li><a href="/communitas/manifest/">Manifest</a></li>
+        <li><a href="/communitas/glossar/">Wörterbuch</a></li>
+        <li><a href="/communitas/stille/">Eine andere Tür</a></li>
+        <li><a href="/communitas/bewerbung/">Sich bewerben</a></li>
+      </ul>
+    </nav>
+
+    <hr />
+
+    <p class="cta">
+      <a href="/communitas/bewerbung/" class="apply-link">Sich bewerben</a>
+    </p>
+  </article>
+
+  <style is:global>
+    @import '../../styles/communitas.css';
+  </style>
+
+  <style>
+    .communitas-landing {
+      max-width: 38rem;
+      margin: 3rem auto;
+      padding: 0 1.25rem;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: #1c1917;
+      line-height: 1.6;
+    }
+    .hero h1 {
+      font-size: 2.2rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      margin: 0 0 0.4rem;
+    }
+    .hero .kicker {
+      color: #78716c;
+      margin: 0 0 2.5rem;
+      font-style: italic;
+    }
+    .excerpt :global(p) {
+      margin: 0 0 1em;
+    }
+    .more a {
+      color: #1c1917;
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+    }
+    .links ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .links li {
+      margin: 0.5em 0;
+    }
+    .links a {
+      color: #1c1917;
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+    }
+    .cta {
+      text-align: center;
+      margin: 3rem 0 0;
+    }
+    .apply-link {
+      display: inline-block;
+      padding: 0.7rem 1.5rem;
+      background: #1c1917;
+      color: #fefefe;
+      text-decoration: none;
+      border-radius: 2px;
+    }
+    .apply-link:hover {
+      background: #000;
+      color: #fefefe;
+    }
+    hr {
+      border: 0;
+      border-top: 1px solid #d6d3d1;
+      margin: 2rem 0;
+    }
+  </style>
+</Base>

@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import Glossar from '../../components/communitas/Glossar.astro';
+---
+
+<Base
+  title="Wörterbuch"
+  description="Wörterbuch der Communitas Cotidiana — etwa fünfzig Begriffe, alphabetisch, ohne Suche, ohne Filter."
+  locale="de"
+>
+  <div class="communitas-root communitas-reveal glossar-page">
+    <Glossar />
+
+    <p class="back">
+      <a href="/communitas/">← Zurück</a>
+    </p>
+  </div>
+
+  <style is:global>
+    @import '../../styles/communitas.css';
+  </style>
+
+  <style>
+    .glossar-page {
+      padding: 2rem 1.25rem 4rem;
+    }
+    .back {
+      max-width: 38rem;
+      margin: 3rem auto 0;
+      color: #78716c;
+    }
+    .back a {
+      color: #78716c;
+    }
+  </style>
+</Base>

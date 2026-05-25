@@ -1,0 +1,59 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base
+  title="Danke"
+  description="Deine Bewerbung ist eingegangen."
+  locale="de"
+  noindex={true}
+>
+  <div class="communitas-root danke-page">
+    <article>
+      <h1>Deine Bewerbung ist eingegangen.</h1>
+      <p>
+        Tobias oder ein Begleiter meldet sich innerhalb von vierzehn Tagen.
+      </p>
+      <p>
+        Du musst nicht warten. Du musst nichts tun. Wir antworten, wenn wir
+        mit dir sprechen wollen.
+      </p>
+      <p class="back">
+        <a href="/communitas/">← Zurück</a>
+      </p>
+    </article>
+  </div>
+
+  <style is:global>
+    @import '../../styles/communitas.css';
+  </style>
+
+  <style>
+    .danke-page {
+      padding: 4rem 1.25rem;
+    }
+    .danke-page article {
+      max-width: 38rem;
+      margin: 0 auto;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: #1c1917;
+      line-height: 1.6;
+    }
+    .danke-page h1 {
+      font-size: 1.8rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      margin: 0 0 1.5rem;
+    }
+    .danke-page p {
+      margin: 0 0 1em;
+    }
+    .back {
+      margin-top: 3rem;
+      color: #78716c;
+    }
+    .back a {
+      color: #78716c;
+    }
+  </style>
+</Base>

@@ -1,0 +1,46 @@
+---
+/**
+ * Manifest.astro — renders the Communitas manifesto as flowing prose.
+ *
+ * Per spec FR-002: the manifest reads as a continuous letter, not as
+ * card-decomposed sections. Georgia serif, max-width 38rem, centered.
+ */
+import { renderMarkdown } from '../../lib/communitas/render-md';
+
+// Pull the markdown source at build time via Vite's ?raw query.
+const sources = import.meta.glob('../../lib/communitas/content/manifesto.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+const raw = Object.values(sources)[0] ?? '';
+const html = renderMarkdown(raw);
+---
+
+<article class="manifest" set:html={html}></article>
+
+<style>
+  .manifest {
+    max-width: 38rem;
+    margin: 0 auto;
+    font-family: var(--c-font-serif, Georgia, 'Times New Roman', Times, serif);
+    color: var(--c-ink, #1c1917);
+    line-height: 1.6;
+  }
+  .manifest :global(h1) {
+    font-size: 1.8rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin: 0 0 2rem;
+  }
+  .manifest :global(p) {
+    margin: 0 0 1em;
+  }
+  .manifest :global(a) {
+    color: var(--c-ink, #1c1917);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+</style>
