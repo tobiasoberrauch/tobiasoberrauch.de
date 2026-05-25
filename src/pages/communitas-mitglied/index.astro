@@ -1,0 +1,229 @@
+---
+import Base from '../../layouts/Base.astro';
+import { sql } from '../../lib/communitas/db';
+import { getSession } from '../../lib/communitas/auth';
+import { getCommunitasWeekday, isMiddayActiveDay } from '../../lib/communitas/schedule';
+import { localDateInZone } from '../../lib/communitas/cron-helpers';
+
+export const prerender = false;
+
+const weekdayLabels: Record<string, string> = {
+  spiegel: 'Spiegel',
+  stille: 'Stille',
+  spur: 'Spur',
+  begegnung: 'Begegnung',
+  versöhnung: 'Versöhnung',
+  werk: 'Werk',
+  sammlung: 'Sammlung',
+};
+
+const session = await getSession(Astro.request).catch(() => null);
+
+interface MemberRow {
+  display_name: string;
+  current_schale_key: string;
+  latin_name: string;
+  german_name: string;
+  in_threshold_until: Date | null;
+  timezone: string;
+  tier: string | null;
+}
+
+let member: MemberRow | null = null;
+let receivedToday: string[] = [];
+let weekdayKey = '';
+
+if (session) {
+  try {
+    const rows = await sql<MemberRow[]>`
+      SELECT
+        m.display_name,
+        m.current_schale_key,
+        s.latin_name,
+        s.german_name,
+        m.in_threshold_until,
+        m.timezone,
+        (
+          SELECT tier FROM subscriptions
+          WHERE member_id = m.id AND status = 'active'
+          ORDER BY created_at DESC LIMIT 1
+        ) AS tier
+      FROM members m
+      JOIN schales s ON s.key = m.current_schale_key
+      WHERE m.id = ${session.memberId}
+      LIMIT 1
+    `;
+    if (rows.length > 0) {
+      member = rows[0];
+      const localDate = localDateInZone(new Date(), member.timezone);
+      weekdayKey = getCommunitasWeekday(new Date(localDate + 'T12:00:00Z'));
+      const sent = await sql<{ anker_type: string }[]>`
+        SELECT DISTINCT anker_type FROM anker_sent_log
+        WHERE member_id = ${session.memberId}
+          AND scheduled_for = ${localDate}::date
+      `;
+      receivedToday = sent.map((r) => r.anker_type);
+    }
+  } catch (err) {
+    console.warn('[mitglied/index] db error', (err as Error).message);
+  }
+}
+
+const firstName = member ? member.display_name.split(' ')[0] : '';
+const todayDate = member ? new Date(localDateInZone(new Date(), member.timezone) + 'T12:00:00Z') : new Date();
+const middayActive = isMiddayActiveDay(todayDate);
+---
+
+<Base
+  title="Communitas Cotidiana — Mitgliedsbereich"
+  description="Mitgliedsbereich der Communitas Cotidiana."
+  locale="de"
+>
+  <article class="member-area">
+    {!session && (
+      <section class="login-request">
+        <h1>Communitas Cotidiana</h1>
+        <p>Hier ist der Mitgliedsbereich. Wenn du eingetragen bist, schicken wir dir einen Anmelde-Link per E-Mail.</p>
+        <form method="post" action="/api/communitas/auth/magic-link" class="request-form">
+          <label>
+            <span>Deine Mitglieds-E-Mail</span>
+            <input type="email" name="email" required autocomplete="email" inputmode="email" />
+          </label>
+          <button type="submit">Link senden</button>
+          <p class="note">Wenn du eingetragen bist, schicken wir dir einen Link.</p>
+        </form>
+      </section>
+    )}
+
+    {session && !member && (
+      <section class="error">
+        <h1>Etwas stimmt nicht.</h1>
+        <p>Wir konnten dein Profil nicht laden. Bitte versuche es später noch einmal.</p>
+      </section>
+    )}
+
+    {session && member && (
+      <section class="dashboard">
+        <h1>Guten Tag, {firstName}.</h1>
+
+        <p class="today">
+          Heute ist <strong>{weekdayLabels[weekdayKey] ?? weekdayKey}</strong>-Tag.
+        </p>
+
+        <p class="schale">
+          Deine Schale: <em>{member.latin_name}</em> — {member.german_name}.
+        </p>
+
+        {member.in_threshold_until && (
+          <p class="threshold">
+            Du bist im Schwellenritus, bis {new Date(member.in_threshold_until).toLocaleDateString('de-DE')}.
+          </p>
+        )}
+
+        <h2>Anker heute</h2>
+        <ul class="anchors">
+          <li>
+            Morgen — {receivedToday.includes('morning') ? 'angekommen' : 'noch nicht'}
+          </li>
+          {middayActive && (
+            <li>
+              Mittag — {receivedToday.includes('noon') ? 'angekommen' : 'noch nicht'}
+            </li>
+          )}
+          {!middayActive && (
+            <li class="muted">
+              Mittag — Stille (kein Anker an Di/Do/Sa/So)
+            </li>
+          )}
+          <li>
+            Abend — {receivedToday.includes('evening') ? 'angekommen' : 'noch nicht'}
+          </li>
+        </ul>
+
+        <h2>Räume</h2>
+        <ul class="rooms">
+          <li class="disabled">Zelle — <span class="muted">in Vorbereitung</span></li>
+          <li class="disabled">Briefkreis — <span class="muted">in Vorbereitung</span></li>
+        </ul>
+      </section>
+    )}
+  </article>
+
+  <style>
+    .member-area {
+      max-width: 38rem;
+      margin: 3rem auto;
+      padding: 0 1.25rem;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: #1c1917;
+      line-height: 1.6;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 400;
+      margin: 0 0 1.5rem;
+    }
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 400;
+      font-style: italic;
+      color: #78716c;
+      margin: 2.5rem 0 0.75rem;
+    }
+    .today, .schale, .threshold {
+      margin: 0 0 0.75em;
+    }
+    .threshold {
+      color: #78716c;
+      font-style: italic;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    li {
+      margin: 0.4em 0;
+    }
+    .muted {
+      color: #78716c;
+    }
+    .disabled {
+      color: #78716c;
+    }
+    .request-form {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .request-form label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .request-form input {
+      font: inherit;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #d6d3d1;
+      background: #fefefe;
+      color: #1c1917;
+      border-radius: 2px;
+    }
+    .request-form button {
+      align-self: flex-start;
+      font: inherit;
+      padding: 0.5rem 1.25rem;
+      background: #1c1917;
+      color: #fefefe;
+      border: 0;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    .request-form .note {
+      color: #78716c;
+      font-size: 0.92rem;
+      margin: 0;
+    }
+  </style>
+</Base>
