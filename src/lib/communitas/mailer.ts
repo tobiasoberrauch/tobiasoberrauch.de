@@ -40,6 +40,45 @@ function unsubscribeUrl(): string {
   return 'https://tobiasoberrauch.de/api/communitas/subscription/cancel';
 }
 
+/**
+ * Send a list of messages in throttled chunks, returning per-message results.
+ *
+ * Resend's free tier allows 10 requests/second. We chunk to `chunkSize`
+ * concurrent calls (default 10), `Promise.allSettled` each chunk, then sleep
+ * `gapMs` (default 1100ms) before the next. The per-message HTTP error is
+ * preserved in the returned array; the caller decides what to do with each.
+ */
+export async function sendBatched(
+  messages: MailParams[],
+  opts: { chunkSize?: number; gapMs?: number } = {},
+): Promise<MailResult[]> {
+  const chunkSize = opts.chunkSize ?? 10;
+  const gapMs = opts.gapMs ?? 1100;
+  const results: MailResult[] = new Array(messages.length);
+
+  for (let i = 0; i < messages.length; i += chunkSize) {
+    const chunk = messages.slice(i, i + chunkSize);
+    const settled = await Promise.allSettled(chunk.map((m) => sendMail(m)));
+    for (let j = 0; j < settled.length; j++) {
+      const s = settled[j];
+      if (s.status === 'fulfilled') {
+        results[i + j] = s.value;
+      } else {
+        results[i + j] = {
+          ok: false,
+          code: 'upstream_error',
+          detail: (s.reason as Error)?.message ?? String(s.reason),
+        };
+      }
+    }
+    if (i + chunkSize < messages.length) {
+      await new Promise((r) => setTimeout(r, gapMs));
+    }
+  }
+
+  return results;
+}
+
 export async function sendMail(params: MailParams): Promise<MailResult> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
