@@ -1,0 +1,404 @@
+---
+/**
+ * Phase 8 / T107 — Vollmond-Brief Editor.
+ *
+ * - List bereits versendeter Briefe (Datum + Verfasser)
+ * - Formular für neuen Entwurf (Datum, Verfasser, Markdown-Body)
+ * - Vier-Stimmen-Check vor dem Submit (UI-Hinweis, Server validiert nochmal)
+ * - Button „Stille Versammlung — Einladung versenden" (separater Endpoint)
+ */
+import Base from '../../../layouts/Base.astro';
+import { sql } from '../../../lib/communitas/db';
+import { requireCompanion, AuthError } from '../../../lib/communitas/auth';
+
+export const prerender = false;
+
+interface PastLetter {
+  id: number;
+  full_moon_date: Date;
+  sent_at: Date | null;
+  author_display_name: string;
+  author_role: string;
+}
+
+interface AuthorOption {
+  id: number;
+  display_name: string;
+  role: string;
+}
+
+let authError: number | null = null;
+let dbError: string | null = null;
+let past: PastLetter[] = [];
+let authors: AuthorOption[] = [];
+let founderShare = { founderCount: 0, total: 0 };
+
+try {
+  await requireCompanion(Astro.request);
+  try {
+    past = await sql<PastLetter[]>`
+      SELECT fml.id, fml.full_moon_date, fml.sent_at,
+             m.display_name AS author_display_name, m.role AS author_role
+      FROM full_moon_letters fml
+      JOIN members m ON m.id = fml.author_id
+      ORDER BY fml.full_moon_date DESC
+      LIMIT 50
+    `;
+
+    authors = await sql<AuthorOption[]>`
+      SELECT id, display_name, role FROM members
+      WHERE role IN ('founder', 'companion') AND left_on IS NULL
+      ORDER BY role DESC, display_name ASC
+    `;
+
+    // Last-12 share for the UI hint.
+    const last12 = await sql<{ role: string }[]>`
+      SELECT m.role
+      FROM full_moon_letters fml
+      JOIN members m ON m.id = fml.author_id
+      WHERE fml.sent_at IS NOT NULL
+      ORDER BY fml.sent_at DESC
+      LIMIT 12
+    `;
+    founderShare = {
+      founderCount: last12.filter((r) => r.role === 'founder').length,
+      total: last12.length,
+    };
+  } catch (err) {
+    dbError = (err as Error).message;
+  }
+} catch (err) {
+  if (err instanceof AuthError) {
+    authError = err.status;
+    Astro.response.status = err.status;
+  } else {
+    throw err;
+  }
+}
+
+function germanDate(d: Date | string): string {
+  const date = typeof d === 'string' ? new Date(d) : d;
+  return date.toLocaleDateString('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+}
+
+const constraintViolated =
+  founderShare.total >= 12 && founderShare.founderCount >= 6;
+const founderIds = authors.filter((a) => a.role === 'founder').map((a) => a.id);
+---
+
+<Base
+  title="Vollmond — Communitas"
+  description="Vollmond-Brief Editor."
+  locale="de"
+  noindex={true}
+>
+  <article class="vollmond">
+    <h1>Vollmond-Briefe</h1>
+
+    {authError === 401 && (
+      <p class="notice">Du bist nicht eingeloggt.</p>
+    )}
+    {authError === 403 && (
+      <p class="notice">
+        Zugang verweigert. Diese Seite ist Begleitern und dem Gründer
+        vorbehalten.
+      </p>
+    )}
+
+    {!authError && dbError && (
+      <p class="notice">Datenbank nicht erreichbar: <code>{dbError}</code></p>
+    )}
+
+    {!authError && !dbError && (
+      <>
+        <section class="section">
+          <h2>Stille Versammlung — Einladung</h2>
+          <p class="muted">
+            Einmaliger Versand an alle aktiven Mitglieder. Keine
+            Wiederholung, kein automatischer Cron.
+          </p>
+          <form id="stille-form">
+            <label>
+              Datum (z. B. „Donnerstag, 5. März 2026")
+              <input type="text" name="date_label" required />
+            </label>
+            <label>
+              Uhrzeit (z. B. „20:00 Uhr (Berlin)")
+              <input type="text" name="time_local" required />
+            </label>
+            <label>
+              Jitsi-Link (https://…)
+              <input type="url" name="jitsi_url" required pattern="https://.*" />
+            </label>
+            <button type="submit">Einladung verschicken</button>
+          </form>
+        </section>
+
+        <hr class="rule" />
+
+        <section class="section">
+          <h2>Neuer Vollmond-Brief</h2>
+
+          <p class={`muted ${constraintViolated ? 'warn' : ''}`}>
+            Tobias hat {founderShare.founderCount} der letzten {founderShare.total} Briefe verfasst.
+            {constraintViolated && (
+              <>
+                {' '}<strong>Eine andere Stimme ist dran.</strong>
+                {' '}Die Communitas trägt mehr als eine Stimme.
+              </>
+            )}
+          </p>
+
+          <form id="new-letter-form">
+            <label>
+              Vollmond-Datum
+              <input type="date" name="full_moon_date" required />
+            </label>
+            <label>
+              Verfasser
+              <select name="author_id" required>
+                {authors.map((a) => (
+                  <option value={a.id}>
+                    {a.display_name}{a.role === 'founder' ? ' (Tobias)' : ''}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Brief (Markdown)
+              <textarea name="body_markdown" rows="20" required minlength="100"></textarea>
+            </label>
+            <p id="form-warning" class="warn" style="display:none;"></p>
+            <button type="submit" id="save-draft">Entwurf speichern</button>
+          </form>
+        </section>
+
+        <hr class="rule" />
+
+        <section class="section">
+          <h2>Bisherige Briefe</h2>
+          {past.length === 0 && <p class="muted">Noch keine.</p>}
+          {past.length > 0 && (
+            <ul class="past">
+              {past.map((p) => (
+                <li>
+                  <span class="meta">{germanDate(p.full_moon_date)}</span>
+                  {' · '}
+                  <span>{p.author_display_name}</span>
+                  {p.author_role === 'founder' && (
+                    <span class="role-tag">Tobias</span>
+                  )}
+                  {' · '}
+                  {p.sent_at ? (
+                    <span class="status sent">versendet {germanDate(p.sent_at)}</span>
+                  ) : (
+                    <span class="status draft">
+                      Entwurf
+                      <button data-action="send" data-id={p.id} class="link">verschicken</button>
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </>
+    )}
+  </article>
+
+  <script define:vars={{ founderIds, constraintViolated }}>
+    const form = document.getElementById('new-letter-form');
+    const warn = document.getElementById('form-warning');
+    const saveBtn = document.getElementById('save-draft');
+
+    function checkConstraint() {
+      const select = form?.querySelector('select[name=author_id]');
+      const v = Number(select?.value || 0);
+      const isFounder = founderIds.includes(v);
+      if (isFounder && constraintViolated) {
+        warn.style.display = 'block';
+        warn.textContent =
+          'Eine andere Stimme ist dran. Tobias hat in den letzten 12 Briefen schon zu oft geschrieben.';
+        saveBtn.disabled = true;
+      } else {
+        warn.style.display = 'none';
+        warn.textContent = '';
+        saveBtn.disabled = false;
+      }
+    }
+    form?.querySelector('select[name=author_id]')?.addEventListener('change', checkConstraint);
+    checkConstraint();
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const payload = {
+        full_moon_date: fd.get('full_moon_date'),
+        author_id: Number(fd.get('author_id')),
+        body_markdown: fd.get('body_markdown'),
+      };
+      saveBtn.disabled = true;
+      try {
+        const res = await fetch('/api/communitas/admin/vollmond', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          const txt = await res.text();
+          warn.style.display = 'block';
+          warn.textContent = `Fehler: ${txt}`;
+          saveBtn.disabled = false;
+        }
+      } catch (err) {
+        warn.style.display = 'block';
+        warn.textContent = `Verbindungsfehler: ${err.message}`;
+        saveBtn.disabled = false;
+      }
+    });
+
+    document.querySelectorAll('button[data-action="send"]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Diesen Brief jetzt an alle Voll+Inner-Circle-Mitglieder verschicken?')) return;
+        const id = btn.dataset.id;
+        btn.disabled = true;
+        try {
+          const res = await fetch(`/api/communitas/admin/vollmond/${id}/send`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            alert(`Versendet: ${data.sent_to}, übersprungen: ${data.skipped}, Fehler: ${data.errors}`);
+            window.location.reload();
+          } else {
+            const txt = await res.text();
+            alert(`Fehler: ${txt}`);
+            btn.disabled = false;
+          }
+        } catch (err) {
+          alert(`Verbindungsfehler: ${err.message}`);
+          btn.disabled = false;
+        }
+      });
+    });
+
+    const stille = document.getElementById('stille-form');
+    stille?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(stille);
+      const payload = {
+        date_label: fd.get('date_label'),
+        time_local: fd.get('time_local'),
+        jitsi_url: fd.get('jitsi_url'),
+      };
+      if (!confirm('Einladung jetzt an alle aktiven Mitglieder verschicken?')) return;
+      try {
+        const res = await fetch('/api/communitas/admin/stille-versammlung/invite', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          alert(`Versendet: ${data.sent_to}, Fehler: ${data.errors}`);
+        } else {
+          const txt = await res.text();
+          alert(`Fehler: ${txt}`);
+        }
+      } catch (err) {
+        alert(`Verbindungsfehler: ${err.message}`);
+      }
+    });
+  </script>
+
+  <style>
+    .vollmond {
+      max-width: 48rem;
+      margin: 2rem auto;
+      padding: 0 1.25rem 4rem;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: #1c1917;
+      background: #fefefe;
+    }
+    .vollmond h1 {
+      font-size: 1.8rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      margin: 0 0 2rem;
+    }
+    .vollmond h2 {
+      font-size: 1.25rem;
+      font-weight: 400;
+      margin: 0 0 1rem;
+    }
+    .rule {
+      border: 0;
+      border-top: 1px solid #d6d3d1;
+      margin: 2.5rem 0;
+    }
+    .section { margin: 0 0 2rem; }
+    .muted { color: #78716c; }
+    .warn { color: #b91c1c; }
+    label {
+      display: block;
+      margin: 0.7rem 0;
+    }
+    input[type=text],
+    input[type=url],
+    input[type=date],
+    select,
+    textarea {
+      display: block;
+      width: 100%;
+      font: inherit;
+      padding: 0.4rem 0.6rem;
+      border: 1px solid #1c1917;
+      border-radius: 2px;
+      margin-top: 0.3rem;
+      box-sizing: border-box;
+    }
+    textarea { resize: vertical; min-height: 16rem; }
+    button[type=submit] {
+      background: #fefefe;
+      color: #1c1917;
+      border: 1px solid #1c1917;
+      padding: 0.5rem 1rem;
+      font: inherit;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    button[type=submit]:hover { background: #1c1917; color: #fefefe; }
+    button[type=submit]:disabled { opacity: 0.5; cursor: wait; }
+    button.link {
+      background: transparent;
+      color: #1c1917;
+      border: 0;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0 0.2em;
+      font: inherit;
+    }
+    .past { list-style: none; padding: 0; margin: 0; }
+    .past li { padding: 0.5rem 0; border-top: 1px solid #d6d3d1; }
+    .past li:first-child { border-top: 0; }
+    .meta { color: #78716c; font-variant-numeric: tabular-nums; }
+    .role-tag {
+      font-size: 0.7rem;
+      border: 1px solid #d6d3d1;
+      padding: 0.05rem 0.4rem;
+      margin-left: 0.4rem;
+      color: #78716c;
+      border-radius: 2px;
+    }
+    .status.sent { color: #1c1917; }
+    .status.draft { color: #78716c; font-style: italic; }
+    .notice { color: #78716c; font-style: italic; }
+  </style>
+</Base>

@@ -1,0 +1,330 @@
+---
+/**
+ * Phase 8 / T104 — Reisen-Übersicht für Mitglieder.
+ *
+ * Spec FR-031: vier Wende-Reisen plus gelegentliche Pilgerreisen mit
+ * transparenter Preisstruktur je Stufe. Keine FOMO, keine „nur noch X
+ * Plätze!"-Banner — wir zeigen schlicht die freien Plätze.
+ *
+ * Authentifizierung: requireMember → 401-Seite, falls nicht eingeloggt.
+ * Daten holen wir direkt aus der DB (statt JSON-Endpoint), damit die Seite
+ * ohne JavaScript funktioniert. Der „Anmelden"-Button POSTet an
+ * /api/communitas/retreats/[id]/book.
+ */
+import Base from '../../layouts/Base.astro';
+import { sql } from '../../lib/communitas/db';
+import { getSession } from '../../lib/communitas/auth';
+import {
+  priceForMemberCents,
+  type ActiveTier,
+} from '../../lib/communitas/retreats';
+
+export const prerender = false;
+
+const session = await getSession(Astro.request).catch(() => null);
+
+interface RetreatRow {
+  id: number;
+  kind: string;
+  title: string;
+  location: string;
+  start_date: Date | string;
+  end_date: Date | string;
+  max_participants: number;
+  base_price_cents: number;
+  voll_surcharge_cents: number | null;
+  cancelled_at: Date | null;
+  cancellation_note: string | null;
+  description: string;
+  booked_count: number;
+  already_booked: boolean;
+}
+
+let retreats: RetreatRow[] = [];
+let tier: ActiveTier = null;
+let dbError: string | null = null;
+
+if (session) {
+  try {
+    const tierRows = await sql<{ tier: string }[]>`
+      SELECT tier FROM subscriptions
+      WHERE member_id = ${session.memberId}
+        AND status IN ('active', 'scholarship')
+      ORDER BY created_at DESC
+      LIMIT 1
+    `;
+    if (tierRows.length > 0) {
+      const t = tierRows[0].tier;
+      if (t === 'basis' || t === 'voll' || t === 'inner_circle') tier = t;
+    }
+
+    retreats = await sql<RetreatRow[]>`
+      SELECT
+        r.id, r.kind, r.title, r.location, r.start_date, r.end_date,
+        r.max_participants, r.base_price_cents, r.voll_surcharge_cents,
+        r.cancelled_at, r.cancellation_note, r.description,
+        (
+          SELECT COUNT(*)::int FROM retreat_bookings rb
+          WHERE rb.retreat_id = r.id AND rb.cancelled_at IS NULL
+        ) AS booked_count,
+        EXISTS (
+          SELECT 1 FROM retreat_bookings rb2
+          WHERE rb2.retreat_id = r.id
+            AND rb2.member_id = ${session.memberId}
+            AND rb2.cancelled_at IS NULL
+        ) AS already_booked
+      FROM retreats r
+      WHERE r.start_date >= current_date
+      ORDER BY r.start_date ASC
+    `;
+  } catch (err) {
+    dbError = (err as Error).message;
+  }
+}
+
+function isoDate(d: Date | string): string {
+  if (typeof d === 'string') return d.slice(0, 10);
+  return d.toISOString().slice(0, 10);
+}
+
+function germanDate(d: Date | string): string {
+  const date = typeof d === 'string' ? new Date(d + 'T12:00:00Z') : d;
+  return date.toLocaleDateString('de-DE', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+function euros(cents: number): string {
+  if (cents === 0) return 'enthalten';
+  return `€ ${(cents / 100).toLocaleString('de-DE', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  })}`;
+}
+---
+
+<Base
+  title="Reisen — Communitas Cotidiana"
+  description="Vier Wende-Reisen pro Jahr, gelegentliche Pilgerreisen."
+  locale="de"
+  noindex={true}
+>
+  <article class="reisen">
+    <h1>Reisen</h1>
+
+    {!session && (
+      <div class="login-form">
+        <p>
+          Dieser Bereich ist Mitgliedern vorbehalten. Trage deine
+          E-Mail-Adresse ein, und wir schicken dir einen Anmelde-Link.
+        </p>
+        <form action="/api/communitas/auth/magic-link" method="POST">
+          <label>
+            E-Mail
+            <input type="email" name="email" required />
+          </label>
+          <button type="submit">Link schicken</button>
+        </form>
+      </div>
+    )}
+
+    {session && dbError && (
+      <p class="notice">Datenbank nicht erreichbar: <code>{dbError}</code></p>
+    )}
+
+    {session && !dbError && retreats.length === 0 && (
+      <p class="notice">Zurzeit sind keine Reisen ausgeschrieben.</p>
+    )}
+
+    {session && !dbError && retreats.length > 0 && (
+      <ul class="retreats">
+        {retreats.map((r) => {
+          const price = priceForMemberCents(
+            tier,
+            Number(r.base_price_cents),
+            r.voll_surcharge_cents == null ? null : Number(r.voll_surcharge_cents),
+          );
+          const free = Math.max(0, r.max_participants - Number(r.booked_count));
+          const isCancelled = r.cancelled_at != null;
+          const isFull = free === 0;
+          return (
+            <li class={`retreat ${isCancelled ? 'is-cancelled' : ''}`} data-id={r.id}>
+              <h2>{r.title}</h2>
+              <p class="meta">
+                {germanDate(r.start_date)} – {germanDate(r.end_date)} · {r.location}
+              </p>
+              <p class="meta">
+                {free} von {r.max_participants} Plätzen frei
+              </p>
+              <p class="price">{euros(price)}</p>
+              <p class="desc">{r.description}</p>
+
+              {isCancelled && (
+                <p class="cancellation">
+                  Diese Reise wurde abgesagt.
+                  {r.cancellation_note ? ` ${r.cancellation_note}` : ''}
+                </p>
+              )}
+
+              {!isCancelled && r.already_booked && (
+                <p class="status-booked">
+                  Du bist angemeldet.
+                </p>
+              )}
+
+              {!isCancelled && !r.already_booked && !isFull && (
+                <button data-action="book" data-id={r.id} data-price={price}>
+                  Anmelden
+                </button>
+              )}
+
+              {!isCancelled && !r.already_booked && isFull && (
+                <p class="meta">Belegt.</p>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    )}
+  </article>
+
+  <script>
+    document
+      .querySelectorAll<HTMLButtonElement>('button[data-action="book"]')
+      .forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.id;
+          if (!id) return;
+          btn.disabled = true;
+          btn.textContent = '…';
+          try {
+            const res = await fetch(`/api/communitas/retreats/${id}/book`, {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({}),
+            });
+            if (!res.ok) {
+              const txt = await res.text();
+              alert(`Anmeldung nicht möglich: ${txt}`);
+              btn.disabled = false;
+              btn.textContent = 'Anmelden';
+              return;
+            }
+            const data = (await res.json()) as {
+              booked?: boolean;
+              stripe_checkout_url?: string;
+            };
+            if (data.stripe_checkout_url) {
+              window.location.href = data.stripe_checkout_url;
+              return;
+            }
+            window.location.reload();
+          } catch (err) {
+            alert(`Verbindungsfehler: ${(err as Error).message}`);
+            btn.disabled = false;
+            btn.textContent = 'Anmelden';
+          }
+        });
+      });
+  </script>
+
+  <style>
+    .reisen {
+      max-width: 48rem;
+      margin: 2rem auto;
+      padding: 0 1.25rem 4rem;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: #1c1917;
+      background: #fefefe;
+    }
+    .reisen h1 {
+      font-size: 1.8rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      margin: 0 0 2rem;
+    }
+    .reisen h2 {
+      font-size: 1.2rem;
+      font-weight: 400;
+      margin: 0 0 0.3em;
+    }
+    .login-form {
+      border-top: 1px solid #d6d3d1;
+      padding-top: 1.5rem;
+    }
+    .login-form label {
+      display: block;
+      margin: 0.5rem 0;
+    }
+    .login-form input {
+      display: block;
+      width: 100%;
+      max-width: 24rem;
+      font: inherit;
+      padding: 0.4rem 0.6rem;
+      border: 1px solid #1c1917;
+      border-radius: 2px;
+      margin-top: 0.3rem;
+    }
+    .login-form button,
+    .retreats button {
+      background: #fefefe;
+      color: #1c1917;
+      border: 1px solid #1c1917;
+      padding: 0.5rem 1rem;
+      font: inherit;
+      cursor: pointer;
+      border-radius: 2px;
+      margin-top: 0.5rem;
+    }
+    .login-form button:hover,
+    .retreats button:hover {
+      background: #1c1917;
+      color: #fefefe;
+    }
+    .retreats button:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+    .retreats {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .retreat {
+      border-top: 1px solid #d6d3d1;
+      padding: 1.5rem 0;
+    }
+    .retreat.is-cancelled h2 {
+      text-decoration: line-through;
+      color: #78716c;
+    }
+    .meta {
+      color: #78716c;
+      font-size: 0.9rem;
+      margin: 0.2rem 0;
+    }
+    .price {
+      margin: 0.5rem 0;
+      font-weight: 500;
+    }
+    .desc {
+      margin: 0.8rem 0;
+    }
+    .status-booked {
+      color: #1c1917;
+      font-style: italic;
+      margin: 0.5rem 0;
+    }
+    .cancellation {
+      color: #b91c1c;
+      margin: 0.5rem 0;
+    }
+    .notice {
+      color: #78716c;
+      font-style: italic;
+    }
+  </style>
+</Base>
