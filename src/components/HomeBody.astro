@@ -1,6 +1,7 @@
 ---
 import Hero from './Hero.astro';
 import Pillars from './Pillars.astro';
+import Topics from './Topics.astro';
 import NewsletterSignup from './NewsletterSignup.astro';
 import type { Locale } from '../i18n/config';
 
@@ -14,6 +15,8 @@ const { locale } = Astro.props;
 <Hero locale={locale} />
 
 <Pillars locale={locale} />
+
+<Topics locale={locale} />
 
 <div class="newsletter-section">
   <NewsletterSignup locale={locale} variant="default" />

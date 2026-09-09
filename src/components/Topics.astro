@@ -1,0 +1,130 @@
+---
+import { t } from '../i18n/translations';
+import { pioneers } from '../i18n/pioneers';
+import { getExtraPath, type Locale } from '../i18n/config';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const tr = t[locale];
+const pio = pioneers[locale];
+
+const labels: Record<Locale, { heading: string; cta: string }> = {
+  de: { heading: 'Themen', cta: 'Entdecken' },
+  en: { heading: 'Topics', cta: 'Explore' },
+  la: { heading: 'Themata', cta: 'Explora' },
+  grc: { heading: 'Θέματα', cta: 'Ἰδέ' },
+};
+const l = labels[locale];
+
+const topics = [
+  {
+    href: getExtraPath(locale, 'pioneers'),
+    badge: pio.badge,
+    title: pio.title,
+    teaser: pio.metaDescription,
+  },
+  {
+    href: getExtraPath(locale, 'giftedness'),
+    badge: tr.pages.giftedness.badge,
+    title: tr.pages.giftedness.title,
+    teaser: tr.pages.giftedness.lead,
+  },
+  {
+    href: getExtraPath(locale, 'lab'),
+    badge: tr.pages.lab.badge,
+    title: tr.pages.lab.title,
+    teaser: tr.pages.lab.lead,
+  },
+];
+---
+
+<section class="topics-section" lang={locale === 'grc' ? 'grc' : undefined}>
+  <h2 class="section-label-center scroll-reveal">{l.heading}</h2>
+  <div class="topics-grid">
+    {topics.map((topic, i) => (
+      <a href={topic.href} class={`topic-card scroll-reveal${i > 0 ? ` sr-delay-${i}` : ''}`}>
+        <span class="topic-badge">{topic.badge}</span>
+        <h3>{topic.title}</h3>
+        <p class="topic-teaser">{topic.teaser}</p>
+        <span class="topic-cta">{l.cta} &rarr;</span>
+      </a>
+    ))}
+  </div>
+</section>
+
+<style>
+  .topics-section {
+    padding: 3rem 0;
+  }
+  .section-label-center {
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-accent);
+    margin: 0 0 2rem;
+  }
+  .topics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+  .topic-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--color-text);
+    transition: all var(--transition);
+  }
+  .topic-card:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-4px);
+    text-decoration: none;
+    color: var(--color-text);
+  }
+  .topic-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-muted);
+  }
+  .topic-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .topic-teaser {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--color-text-soft);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .topic-cta {
+    margin-top: auto;
+    padding-top: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+  @media (max-width: 900px) {
+    .topics-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
