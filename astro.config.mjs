@@ -12,6 +12,13 @@ import keystatic from '@keystatic/astro';
 export default defineConfig({
   site: 'https://tobiasoberrauch.de',
   output: 'static',
+  redirects: {
+    '/de/hochbegabung': '/de/neurodivergenz',
+    '/de/hochbegabung/[slug]': '/de/neurodivergenz/[slug]',
+    '/en/giftedness': '/en/neurodivergence',
+    '/ingenium': '/neurodiversitas',
+    '/grc/euphyia': '/grc/neuropoikilia',
+  },
   i18n: {
     defaultLocale: 'la',
     locales: ['la', 'de', 'en', 'grc'],

@@ -65,7 +65,7 @@ const articles = entries
     <ul class="article-list">
       {articles.map((a, i) => (
         <li>
-          <a href={`/hochbegabung/${a.slug}/`} class="article-card" hreflang="de">
+          <a href={`/de/neurodivergenz/${a.slug}/`} class="article-card" hreflang="de">
             <div class="article-number">{String(i + 1).padStart(2, '0')}</div>
             <div class="article-content">
               {a.date && <time>{new Date(a.date).toLocaleDateString(locale === 'de' ? 'de-DE' : locale === 'en' ? 'en-US' : 'de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}</time>}

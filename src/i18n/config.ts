@@ -45,10 +45,10 @@ export const pillarSlugs: Record<Locale, Record<PillarKey, string>> = {
 export type ExtraKey = 'giftedness' | 'lab' | 'about' | 'pioneers';
 
 export const extraSlugs: Record<Locale, Record<ExtraKey, string>> = {
-  de: { giftedness: 'hochbegabung', lab: 'lab', about: 'ueber-mich', pioneers: 'prinzipien-der-pioniere' },
-  en: { giftedness: 'giftedness', lab: 'lab', about: 'about', pioneers: 'principles-of-pioneers' },
-  la: { giftedness: 'ingenium', lab: 'officina', about: 'de-me', pioneers: 'principia-praecursorum' },
-  grc: { giftedness: 'euphyia', lab: 'ergasterion', about: 'peri-emou', pioneers: 'archai-prodromon' },
+  de: { giftedness: 'neurodivergenz', lab: 'lab', about: 'ueber-mich', pioneers: 'prinzipien-der-pioniere' },
+  en: { giftedness: 'neurodivergence', lab: 'lab', about: 'about', pioneers: 'principles-of-pioneers' },
+  la: { giftedness: 'neurodiversitas', lab: 'officina', about: 'de-me', pioneers: 'principia-praecursorum' },
+  grc: { giftedness: 'neuropoikilia', lab: 'ergasterion', about: 'peri-emou', pioneers: 'archai-prodromon' },
 };
 
 // Reverse lookup: any known slug → canonical key
@@ -72,6 +72,10 @@ export const slugToExtra: Record<string, ExtraKey> = {
   giftedness: 'giftedness',
   ingenium: 'giftedness',
   euphyia: 'giftedness',
+  neurodivergenz: 'giftedness',
+  neurodivergence: 'giftedness',
+  neurodiversitas: 'giftedness',
+  neuropoikilia: 'giftedness',
   lab: 'lab',
   officina: 'lab',
   ergasterion: 'lab',
