@@ -1,0 +1,296 @@
+---
+import { pioneers } from '../i18n/pioneers';
+import { getLocalePath, type Locale } from '../i18n/config';
+import { t } from '../i18n/translations';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const p = pioneers[locale];
+const tr = t[locale];
+---
+
+<article class="pioneers-page" lang={locale === 'grc' ? 'grc' : undefined}>
+  <header class="pioneers-header scroll-reveal">
+    <a href={getLocalePath(locale)} class="back-link">&larr; {tr.nav.home}</a>
+    <span class="pioneers-eyebrow">{p.badge}</span>
+    <h1>{p.title}</h1>
+    {p.intro.map((para) => (
+      <p class="lead" set:html={para} />
+    ))}
+    <ul class="pattern-list">
+      {p.patterns.map((item) => (
+        <li>{item}</li>
+      ))}
+    </ul>
+    <p class="lead" set:html={p.introOutro} />
+  </header>
+
+  <div class="principles">
+    {p.principles.map((pr, i) => (
+      <section class="principle scroll-reveal" style={`transition-delay: ${i * 0.05}s`}>
+        <div class="principle-head">
+          <span class="principle-numeral">{pr.numeral}</span>
+          <div>
+            <h2>{pr.titleEn}</h2>
+            <p class="principle-sub">{pr.titleLocal}</p>
+          </div>
+        </div>
+        <blockquote class="principle-quote">{pr.quote}</blockquote>
+        {pr.intro.map((para) => (
+          <p set:html={para} />
+        ))}
+        <h3 class="section-label">{p.historyLabel}</h3>
+        {pr.history.map((para) => (
+          <p set:html={para} />
+        ))}
+        <h3 class="section-label">{p.todayLabel}</h3>
+        {pr.today.map((para) => (
+          <p set:html={para} />
+        ))}
+        <aside class="principle-callout">
+          <span class="callout-label">{p.principleLabel}</span>
+          <p class="callout-text">{pr.principle}</p>
+        </aside>
+      </section>
+    ))}
+  </div>
+
+  <section class="cycle scroll-reveal">
+    <h2>{p.cycleTitle}</h2>
+    <p set:html={p.cycleIntro} />
+    <ol class="cycle-steps">
+      {p.principles.map((pr, i) => (
+        <li>
+          <span class="cycle-step-title">{pr.titleEn}</span>
+          <span class="cycle-step-question">{p.cycleQuestions[i]}</span>
+        </li>
+      ))}
+    </ol>
+    <p set:html={p.cycleOutro} />
+  </section>
+
+  <section class="core scroll-reveal">
+    <h2>{p.coreTitle}</h2>
+    {p.coreBody.map((para) => (
+      <p set:html={para} />
+    ))}
+    <p class="core-credo">
+      {p.coreCredo.map((line) => (
+        <span>{line}<br /></span>
+      ))}
+    </p>
+    {p.coreClosing.map((para) => (
+      <p set:html={para} />
+    ))}
+  </section>
+</article>
+
+<style>
+  .pioneers-page {
+    padding: 3rem 0 2rem;
+  }
+  .back-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    transition: color var(--transition);
+  }
+  .back-link:hover {
+    color: var(--color-accent);
+  }
+  .pioneers-eyebrow {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-accent);
+    margin-bottom: 0.75rem;
+  }
+  .pioneers-header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin: 0 0 1.5rem;
+  }
+  .lead {
+    font-family: var(--font-display);
+    font-size: clamp(1.02rem, 1.4vw, 1.18rem);
+    line-height: 1.65;
+    color: var(--color-text-soft);
+    margin: 0 0 1rem;
+  }
+  .pattern-list {
+    margin: 1.5rem 0;
+    padding: 0;
+    list-style: none;
+    border-left: 2px solid var(--color-accent);
+  }
+  .pattern-list li {
+    padding: 0.35rem 0 0.35rem 1.25rem;
+    color: var(--color-text-soft);
+    line-height: 1.6;
+  }
+  .principles {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+    margin: 4rem 0;
+  }
+  .principle-head {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .principle-numeral {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--color-accent);
+  }
+  .principle-head h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.15;
+    margin: 0;
+  }
+  .principle-sub {
+    font-size: 1rem;
+    color: var(--color-muted);
+    margin: 0.25rem 0 0;
+  }
+  .principle-quote {
+    margin: 0 0 1.5rem;
+    padding: 0.75rem 0 0.75rem 1.25rem;
+    border-left: 3px solid var(--color-accent);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.08rem;
+    line-height: 1.55;
+    color: var(--color-text);
+  }
+  .principle p,
+  .cycle p,
+  .core p {
+    color: var(--color-text-soft);
+    font-size: 1.02rem;
+    line-height: 1.7;
+    margin: 0 0 1rem;
+  }
+  .section-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-accent);
+    margin: 1.75rem 0 0.75rem;
+  }
+  .principle-callout {
+    margin-top: 1.75rem;
+    padding: 1.1rem 1.35rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+  .callout-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-muted);
+    margin-bottom: 0.4rem;
+  }
+  .callout-text {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    margin: 0 !important;
+    color: var(--color-text) !important;
+  }
+  .cycle,
+  .core {
+    margin-top: 4rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--color-border);
+  }
+  .cycle h2,
+  .core h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin: 0 0 1rem;
+  }
+  .cycle-steps {
+    list-style: none;
+    counter-reset: cycle;
+    margin: 1.5rem 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .cycle-steps li {
+    counter-increment: cycle;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.85rem 1.1rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    position: relative;
+    padding-left: 3.25rem;
+  }
+  .cycle-steps li::before {
+    content: counter(cycle);
+    position: absolute;
+    left: 1.1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--color-accent);
+  }
+  .cycle-step-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
+  }
+  .cycle-step-question {
+    font-size: 0.92rem;
+    font-style: italic;
+    color: var(--color-muted);
+  }
+  .core-credo {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.12rem !important;
+    line-height: 1.8 !important;
+    color: var(--color-text) !important;
+    margin: 1.5rem 0 !important;
+    padding-left: 1.25rem;
+    border-left: 3px solid var(--color-accent);
+  }
+  @media (max-width: 640px) {
+    .principle-head {
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+  }
+</style>

@@ -41,6 +41,7 @@ export interface Translation {
     writing: string;
     speaking: string;
     working: string;
+    pioneers: string;
     about: string;
     languageLabel: string;
   };
@@ -178,6 +179,7 @@ export const t: Record<Locale, Translation> = {
       writing: 'Schreiben',
       speaking: 'Sprechen',
       working: 'Arbeiten',
+      pioneers: 'Prinzipien',
       about: 'Über mich',
       languageLabel: 'Sprache',
     },
@@ -399,6 +401,7 @@ export const t: Record<Locale, Translation> = {
       writing: 'Writing',
       speaking: 'Speaking',
       working: 'Working',
+      pioneers: 'Principles',
       about: 'About',
       languageLabel: 'Language',
     },
@@ -620,6 +623,7 @@ export const t: Record<Locale, Translation> = {
       writing: 'Scriptura',
       speaking: 'Oratio',
       working: 'Opera',
+      pioneers: 'Principia',
       about: 'De Me',
       languageLabel: 'Lingua',
     },
@@ -841,6 +845,7 @@ export const t: Record<Locale, Translation> = {
       writing: 'Γραφή',
       speaking: 'Λόγος',
       working: 'Ἔργον',
+      pioneers: 'Ἀρχαί',
       about: 'Περὶ Ἐμοῦ',
       languageLabel: 'Γλῶττα',
     },

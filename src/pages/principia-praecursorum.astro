@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import PioneersBody from '../components/PioneersBody.astro';
+import { pioneers } from '../i18n/pioneers';
+
+const locale = 'la' as const;
+const p = pioneers[locale];
+---
+
+<Base title={p.title} description={p.metaDescription} locale={locale}>
+  <PioneersBody locale={locale} />
+</Base>

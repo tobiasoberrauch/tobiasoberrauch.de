@@ -42,13 +42,13 @@ export const pillarSlugs: Record<Locale, Record<PillarKey, string>> = {
 };
 
 // Legacy / additional sections (humanistic depth, lab, about)
-export type ExtraKey = 'giftedness' | 'lab' | 'about';
+export type ExtraKey = 'giftedness' | 'lab' | 'about' | 'pioneers';
 
 export const extraSlugs: Record<Locale, Record<ExtraKey, string>> = {
-  de: { giftedness: 'hochbegabung', lab: 'lab', about: 'ueber-mich' },
-  en: { giftedness: 'giftedness', lab: 'lab', about: 'about' },
-  la: { giftedness: 'ingenium', lab: 'officina', about: 'de-me' },
-  grc: { giftedness: 'euphyia', lab: 'ergasterion', about: 'peri-emou' },
+  de: { giftedness: 'hochbegabung', lab: 'lab', about: 'ueber-mich', pioneers: 'prinzipien-der-pioniere' },
+  en: { giftedness: 'giftedness', lab: 'lab', about: 'about', pioneers: 'principles-of-pioneers' },
+  la: { giftedness: 'ingenium', lab: 'officina', about: 'de-me', pioneers: 'principia-praecursorum' },
+  grc: { giftedness: 'euphyia', lab: 'ergasterion', about: 'peri-emou', pioneers: 'archai-prodromon' },
 };
 
 // Reverse lookup: any known slug → canonical key
@@ -79,6 +79,10 @@ export const slugToExtra: Record<string, ExtraKey> = {
   about: 'about',
   'de-me': 'about',
   'peri-emou': 'about',
+  'prinzipien-der-pioniere': 'pioneers',
+  'principles-of-pioneers': 'pioneers',
+  'principia-praecursorum': 'pioneers',
+  'archai-prodromon': 'pioneers',
 };
 
 export function getLocalePath(locale: Locale, path: string = ''): string {
