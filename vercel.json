@@ -1,5 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    { "source": "/de/hochbegabung/:path*", "destination": "/de/neurodivergenz/:path*", "permanent": true },
+    { "source": "/en/giftedness/:path*", "destination": "/en/neurodivergence/:path*", "permanent": true },
+    { "source": "/ingenium/:path*", "destination": "/neurodiversitas/:path*", "permanent": true },
+    { "source": "/grc/euphyia/:path*", "destination": "/grc/neuropoikilia/:path*", "permanent": true }
+  ],
   "crons": [
     { "path": "/api/communitas/cron/morning", "schedule": "0 4 * * *" },
     { "path": "/api/communitas/cron/noon", "schedule": "0 10 * * 1,3,5" },
